@@ -1,0 +1,14 @@
+
+# iniciais
+fastapi
+uvicorn
+sqlmodel
+pydantic-settings
+
+#argon2 gera o hash com salt antes de armazenar
+pwdlib[argon2]
+pydantic[email]
+
+#json web tokens e receber os dados como formulário
+pyjwt 
+python-multipart

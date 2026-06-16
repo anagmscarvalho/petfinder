@@ -1,0 +1,6 @@
+# para o .env não ser acessível
+
+venv/
+__pycache__/
+*.db
+.env
