@@ -28,3 +28,9 @@ npm-debug.log*
 
 # CLIP model cache
 .cache/
+
+# Database
+*.db
+
+# Uploads
+uploads/
