@@ -18,11 +18,13 @@ class User(SQLModel, table=True):
 	data_nascimento: date
 	email: str = Field(unique=True, index= True)
 	senha_hash: str
-	notificacoes_ativas: bool = Field(default=True)
+	notificacoes_ativas: bool = Field(default=True) 
 	ativo: bool = Field(default=True)
 	criado_em: datetime = Field(default_factory=datetime.utcnow)
 	tipo_conta: TipoConta = Field(default=TipoConta.comum)
-	pode_postar_adocao: bool = Field(default=False)
+	pode_postar_adocao: bool = Field(default=False) # Começa sem permissão
+
+	is_admin: bool = Field(default=False) # Começa sem permissão
 
 	pets: list["Pet"] = Relationship(
 	back_populates="dono",

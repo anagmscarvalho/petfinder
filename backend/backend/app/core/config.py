@@ -6,6 +6,7 @@ class Settings(BaseSettings):
 	jwt_secret: str
 	jwt_algorithm: str ="HS256"
 	access_token_expire_minutes: int = 60
-
+	upload_dir: str = "uploads"
+	max_foto_mb: int = 5
 
 settings = Settings()

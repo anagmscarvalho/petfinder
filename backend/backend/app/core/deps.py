@@ -33,7 +33,13 @@ def usuario_logado(
 
 # Endpoint nao vai executar se der erro nessa parte (401)
 
-
+def usuario_admin(usuario: User = Depends(usuario_logado)) -> User:
+    if not usuario.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso negado. Esta ação é restrita à equipe do PetFinder.",
+        )
+    return usuario
 
 
 

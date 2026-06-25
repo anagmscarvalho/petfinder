@@ -12,3 +12,6 @@ pydantic[email]
 #json web tokens e receber os dados como formulário
 pyjwt 
 python-multipart
+
+#manipulação de imagens
+pillow

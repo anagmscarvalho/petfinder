@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.deps import usuario_logado
 from app.core.database import get_session
 from app.models.user import User
+from app.routers.pets import montar_pet_read
 from app.schemas.user import UserRead, UserUpdate
 from app.schemas.pet import PetRead
 from app.models.pet import Pet, StatusPet
@@ -34,7 +35,7 @@ def editar_perfil(
 
 @router.get("/me/pets", response_model=list[PetRead])
 def meus_pets(usuario: User = Depends(usuario_logado)):
-    return usuario.pets
+    return [montar_pet_read(pet) for pet in usuario.pets]
 
 @router.post("/me/favorites/{pet_id}", status_code=status.HTTP_201_CREATED)
 def favoritar(
@@ -85,7 +86,8 @@ def meus_favoritos(
         .join(Favorito, Favorito.pet_id == Pet.id)
         .where(Favorito.usuario_id == usuario.id)
     ).all()
-    return pets
+    return [montar_pet_read(pet) for pet in pets]
+    
 
 
 @router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
