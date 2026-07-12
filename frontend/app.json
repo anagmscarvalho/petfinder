@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "PetFinder",
+    "slug": "petfinder",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.petfinder.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "O PetFinder precisa de acesso à câmera para tirar fotos dos pets.",
+        "NSPhotoLibraryUsageDescription": "O PetFinder precisa de acesso à galeria para enviar fotos dos pets."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.petfinder.app",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O PetFinder precisa de acesso às suas fotos para enviar imagens dos pets.",
+          "cameraPermission": "O PetFinder precisa de acesso à câmera para tirar fotos dos pets."
+        }
+      ],
+      "expo-asset",
+      "expo-font"
+    ]
+  }
+}

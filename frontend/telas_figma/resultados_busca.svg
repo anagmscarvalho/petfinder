@@ -1,0 +1,148 @@
+<svg width="375" height="812" viewBox="0 0 375 812" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="screen"><rect width="375" height="812" fill="white"/></clipPath>
+    <filter id="cardShadow" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="pawGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EE791C" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#EE791C" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#screen)">
+    <rect width="375" height="812" fill="#F2EFE4"/>
+
+    <!-- STATUS BAR -->
+    <text x="32" y="28" font-family="Inter, sans-serif" font-size="15" font-weight="600" fill="black">9:41</text>
+    <rect x="293.5" y="18" width="4" height="10" rx="1" fill="black"/>
+    <rect x="299" y="15" width="4" height="13" rx="1" fill="black"/>
+    <rect x="304.5" y="12" width="4" height="16" rx="1" fill="black"/>
+    <rect x="310" y="9" width="4" height="19" rx="1" fill="black"/>
+    <circle cx="326" cy="23" r="1.5" fill="black"/>
+    <path d="M320 17c3.3-2.5 8.7-2.5 12 0" stroke="black" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <path d="M322 20c2.2-1.7 5.8-1.7 8 0" stroke="black" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <rect x="338" y="18" width="22" height="11" rx="3" stroke="black" stroke-opacity="0.35" fill="none"/>
+    <rect x="340" y="20" width="18" height="7" rx="1.5" fill="black"/>
+
+    <!-- HEADER -->
+    <g transform="translate(16, 52)">
+      <circle cx="18" cy="18" r="18" fill="white" stroke="#E6E6E6"/>
+      <path d="M22 10l-8 8 8 8" stroke="#455A64" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </g>
+    <text x="80" y="74" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#455A64">Resultados da Busca</text>
+
+    <!-- UPLOADED PHOTO PREVIEW -->
+    <rect x="16" y="100" width="80" height="80" rx="12" fill="url(#pawGrad)" stroke="#EE791C" stroke-width="1.5"/>
+    <g transform="translate(36, 125)" fill="#EE791C" opacity="0.3">
+      <ellipse cx="0" cy="0" rx="6" ry="8"/>
+      <ellipse cx="-8" cy="-9" rx="4" ry="5"/>
+      <ellipse cx="8" cy="-9" rx="4" ry="5"/>
+      <ellipse cx="-12" cy="-1" rx="3.5" ry="4.5"/>
+      <ellipse cx="12" cy="-1" rx="3.5" ry="4.5"/>
+    </g>
+    <text x="108" y="124" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#455A64">Foto enviada</text>
+    <text x="108" y="144" font-family="Inter, sans-serif" font-size="13" fill="#828282">5 resultados encontrados</text>
+    <text x="108" y="164" font-family="Inter, sans-serif" font-size="12" fill="#828282">Ordenados por similaridade</text>
+
+    <!-- ===== RESULT CARD 1 (High similarity - Green) ===== -->
+    <g filter="url(#cardShadow)">
+      <rect x="16" y="198" width="343" height="110" rx="14" fill="white"/>
+    </g>
+    <rect x="24" y="206" width="85" height="94" rx="10" fill="url(#pawGrad)"/>
+    <g transform="translate(48, 238)" fill="#EE791C" opacity="0.25">
+      <ellipse cx="0" cy="0" rx="5" ry="7"/>
+      <ellipse cx="-7" cy="-8" rx="3.5" ry="4.5"/>
+      <ellipse cx="7" cy="-8" rx="3.5" ry="4.5"/>
+      <ellipse cx="-11" cy="-1" rx="3" ry="4"/>
+      <ellipse cx="11" cy="-1" rx="3" ry="4"/>
+    </g>
+    <text x="120" y="224" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#1A1A1A">Rex</text>
+    <!-- HIGH badge -->
+    <rect x="152" y="210" width="46" height="22" rx="11" fill="#4CAF50" opacity="0.15"/>
+    <text x="158" y="225" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#4CAF50">87%</text>
+    <text x="120" y="244" font-family="Inter, sans-serif" font-size="12" fill="#828282">Golden Retriever • Grande</text>
+    <text x="120" y="262" font-family="Inter, sans-serif" font-size="12" fill="#828282">Marco, Belém - PA</text>
+    <text x="120" y="280" font-family="Inter, sans-serif" font-size="11" fill="#828282">Desaparecido: 05/06/2026</text>
+    <!-- Contact button -->
+    <rect x="264" y="264" width="88" height="34" rx="10" fill="#EE791C"/>
+    <text x="278" y="286" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="white">Contatar</text>
+
+    <!-- ===== RESULT CARD 2 (High similarity) ===== -->
+    <g filter="url(#cardShadow)">
+      <rect x="16" y="322" width="343" height="110" rx="14" fill="white"/>
+    </g>
+    <rect x="24" y="330" width="85" height="94" rx="10" fill="url(#pawGrad)"/>
+    <g transform="translate(48, 362)" fill="#EE791C" opacity="0.25">
+      <ellipse cx="0" cy="0" rx="5" ry="7"/>
+      <ellipse cx="-7" cy="-8" rx="3.5" ry="4.5"/>
+      <ellipse cx="7" cy="-8" rx="3.5" ry="4.5"/>
+      <ellipse cx="-11" cy="-1" rx="3" ry="4"/>
+      <ellipse cx="11" cy="-1" rx="3" ry="4"/>
+    </g>
+    <text x="120" y="348" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#1A1A1A">Buddy</text>
+    <rect x="170" y="334" width="46" height="22" rx="11" fill="#4CAF50" opacity="0.15"/>
+    <text x="176" y="349" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#4CAF50">72%</text>
+    <text x="120" y="368" font-family="Inter, sans-serif" font-size="12" fill="#828282">Labrador • Grande</text>
+    <text x="120" y="386" font-family="Inter, sans-serif" font-size="12" fill="#828282">Nazaré, Belém - PA</text>
+    <text x="120" y="404" font-family="Inter, sans-serif" font-size="11" fill="#828282">Desaparecido: 28/05/2026</text>
+    <rect x="264" y="388" width="88" height="34" rx="10" fill="#EE791C"/>
+    <text x="278" y="410" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="white">Contatar</text>
+
+    <!-- ===== RESULT CARD 3 (Medium similarity - Yellow) ===== -->
+    <g filter="url(#cardShadow)">
+      <rect x="16" y="446" width="343" height="110" rx="14" fill="white"/>
+    </g>
+    <rect x="24" y="454" width="85" height="94" rx="10" fill="url(#pawGrad)"/>
+    <g transform="translate(48, 486)" fill="#EE791C" opacity="0.25">
+      <ellipse cx="0" cy="0" rx="5" ry="7"/>
+      <ellipse cx="-7" cy="-8" rx="3.5" ry="4.5"/>
+      <ellipse cx="7" cy="-8" rx="3.5" ry="4.5"/>
+      <ellipse cx="-11" cy="-1" rx="3" ry="4"/>
+      <ellipse cx="11" cy="-1" rx="3" ry="4"/>
+    </g>
+    <text x="120" y="472" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#1A1A1A">Thor</text>
+    <rect x="155" y="458" width="46" height="22" rx="11" fill="#FF9800" opacity="0.15"/>
+    <text x="161" y="473" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#FF9800">54%</text>
+    <text x="120" y="492" font-family="Inter, sans-serif" font-size="12" fill="#828282">Vira-lata • Médio</text>
+    <text x="120" y="510" font-family="Inter, sans-serif" font-size="12" fill="#828282">Pedreira, Belém - PA</text>
+    <text x="120" y="528" font-family="Inter, sans-serif" font-size="11" fill="#828282">Desaparecido: 20/05/2026</text>
+    <rect x="264" y="512" width="88" height="34" rx="10" fill="#EE791C"/>
+    <text x="278" y="534" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="white">Contatar</text>
+
+    <!-- ===== RESULT CARD 4 (Medium similarity) ===== -->
+    <g filter="url(#cardShadow)">
+      <rect x="16" y="570" width="343" height="110" rx="14" fill="white"/>
+    </g>
+    <rect x="24" y="578" width="85" height="94" rx="10" fill="url(#pawGrad)"/>
+    <g transform="translate(48, 610)" fill="#EE791C" opacity="0.25">
+      <ellipse cx="0" cy="0" rx="5" ry="7"/>
+      <ellipse cx="-7" cy="-8" rx="3.5" ry="4.5"/>
+      <ellipse cx="7" cy="-8" rx="3.5" ry="4.5"/>
+      <ellipse cx="-11" cy="-1" rx="3" ry="4"/>
+      <ellipse cx="11" cy="-1" rx="3" ry="4"/>
+    </g>
+    <text x="120" y="596" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#1A1A1A">Bob</text>
+    <rect x="150" y="582" width="46" height="22" rx="11" fill="#FF9800" opacity="0.15"/>
+    <text x="156" y="597" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#FF9800">41%</text>
+    <text x="120" y="616" font-family="Inter, sans-serif" font-size="12" fill="#828282">Cocker Spaniel • Médio</text>
+    <text x="120" y="634" font-family="Inter, sans-serif" font-size="12" fill="#828282">Umarizal, Belém - PA</text>
+    <text x="120" y="652" font-family="Inter, sans-serif" font-size="11" fill="#828282">Desaparecido: 15/05/2026</text>
+    <rect x="264" y="636" width="88" height="34" rx="10" fill="#EE791C"/>
+    <text x="278" y="658" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="white">Contatar</text>
+
+    <!-- ===== RESULT CARD 5 (Low similarity - Orange) ===== -->
+    <g filter="url(#cardShadow)">
+      <rect x="16" y="694" width="343" height="80" rx="14" fill="white"/>
+    </g>
+    <rect x="24" y="702" width="64" height="64" rx="10" fill="url(#pawGrad)"/>
+    <text x="100" y="726" font-family="Inter, sans-serif" font-size="15" font-weight="700" fill="#1A1A1A">Mel</text>
+    <rect x="130" y="712" width="46" height="22" rx="11" fill="#EE791C" opacity="0.15"/>
+    <text x="136" y="727" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#EE791C">28%</text>
+    <text x="100" y="748" font-family="Inter, sans-serif" font-size="12" fill="#828282">Poodle • Sacramenta</text>
+    <rect x="264" y="720" width="88" height="34" rx="10" fill="white" stroke="#EE791C" stroke-width="1.5"/>
+    <text x="278" y="742" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#EE791C">Contatar</text>
+
+    <!-- Home indicator -->
+    <rect x="121" y="799" width="134" height="5" rx="2.5" fill="black"/>
+  </g>
+</svg>

@@ -1,0 +1,104 @@
+<svg width="375" height="812" viewBox="0 0 375 812" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="screen"><rect width="375" height="812" fill="white"/></clipPath>
+    <filter id="cardShadow" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="pawGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EE791C" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#EE791C" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#screen)">
+    <rect width="375" height="812" fill="#F2EFE4"/>
+
+    <!-- STATUS BAR -->
+    <text x="32" y="28" font-family="Inter, sans-serif" font-size="15" font-weight="600" fill="black">9:41</text>
+    <rect x="293.5" y="18" width="4" height="10" rx="1" fill="black"/>
+    <rect x="299" y="15" width="4" height="13" rx="1" fill="black"/>
+    <rect x="304.5" y="12" width="4" height="16" rx="1" fill="black"/>
+    <rect x="310" y="9" width="4" height="19" rx="1" fill="black"/>
+    <circle cx="326" cy="23" r="1.5" fill="black"/>
+    <path d="M320 17c3.3-2.5 8.7-2.5 12 0" stroke="black" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <path d="M322 20c2.2-1.7 5.8-1.7 8 0" stroke="black" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <rect x="338" y="18" width="22" height="11" rx="3" stroke="black" stroke-opacity="0.35" fill="none"/>
+    <rect x="340" y="20" width="18" height="7" rx="1.5" fill="black"/>
+
+    <!-- HEADER -->
+    <g transform="translate(16, 52)">
+      <!-- Back arrow -->
+      <circle cx="18" cy="18" r="18" fill="white" stroke="#E6E6E6"/>
+      <path d="M22 10l-8 8 8 8" stroke="#455A64" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </g>
+    <text x="60" y="74" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#455A64">Detalhes do Pet</text>
+
+    <!-- LARGE PET PHOTO -->
+    <rect x="16" y="100" width="343" height="240" rx="16" fill="url(#pawGrad)"/>
+    <rect x="16" y="100" width="343" height="240" rx="16" stroke="#E6E6E6" stroke-width="0.5"/>
+    <!-- Paw icon centered -->
+    <g transform="translate(164, 200)" fill="#EE791C" opacity="0.25">
+      <ellipse cx="0" cy="0" rx="14" ry="18"/>
+      <ellipse cx="-18" cy="-22" rx="9" ry="11"/>
+      <ellipse cx="18" cy="-22" rx="9" ry="11"/>
+      <ellipse cx="-28" cy="-4" rx="8" ry="10"/>
+      <ellipse cx="28" cy="-4" rx="8" ry="10"/>
+    </g>
+
+    <!-- PET NAME + STATUS -->
+    <text x="20" y="370" font-family="Inter, sans-serif" font-size="24" font-weight="700" fill="#1A1A1A">Rex</text>
+    <rect x="60" y="354" width="72" height="26" rx="13" fill="#EE791C" opacity="0.12"/>
+    <text x="72" y="372" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#EE791C">Perdido</text>
+    <!-- Breed -->
+    <text x="20" y="394" font-family="Inter, sans-serif" font-size="14" fill="#828282">Golden Retriever • Macho</text>
+
+    <!-- INFO GRID -->
+    <g filter="url(#cardShadow)">
+      <rect x="16" y="412" width="343" height="140" rx="14" fill="white"/>
+    </g>
+    <!-- Row 1 -->
+    <text x="32" y="440" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#828282" text-transform="uppercase" letter-spacing="0.5">ESPÉCIE</text>
+    <text x="32" y="458" font-family="Inter, sans-serif" font-size="15" font-weight="500" fill="#1A1A1A">Cachorro</text>
+
+    <text x="152" y="440" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#828282">RAÇA</text>
+    <text x="152" y="458" font-family="Inter, sans-serif" font-size="15" font-weight="500" fill="#1A1A1A">Golden Retriever</text>
+
+    <!-- Row 2 -->
+    <text x="32" y="488" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#828282">PORTE</text>
+    <text x="32" y="506" font-family="Inter, sans-serif" font-size="15" font-weight="500" fill="#1A1A1A">Grande</text>
+
+    <text x="152" y="488" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#828282">COR</text>
+    <text x="152" y="506" font-family="Inter, sans-serif" font-size="15" font-weight="500" fill="#1A1A1A">Dourado</text>
+
+    <!-- Row 3 -->
+    <text x="32" y="530" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#828282">BAIRRO</text>
+    <text x="32" y="548" font-family="Inter, sans-serif" font-size="15" font-weight="500" fill="#1A1A1A">Marco, Belém - PA</text>
+
+    <!-- ADDITIONAL INFO -->
+    <g filter="url(#cardShadow)">
+      <rect x="16" y="566" width="343" height="80" rx="14" fill="white"/>
+    </g>
+    <text x="32" y="590" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#828282">CARACTERÍSTICA</text>
+    <text x="32" y="610" font-family="Inter, sans-serif" font-size="14" fill="#1A1A1A">Mancha branca no olho esquerdo. Responde por Rex.</text>
+    <text x="32" y="630" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#828282">DESAPARECIDO EM</text>
+    <text x="176" y="630" font-family="Inter, sans-serif" font-size="13" fill="#1A1A1A">05/06/2026</text>
+
+    <!-- CONTACT BUTTON -->
+    <rect x="16" y="664" width="168" height="50" rx="14" fill="#EE791C"/>
+    <!-- Phone icon -->
+    <g transform="translate(42, 680)">
+      <path d="M0 3c0-1.5 1-3 3-3h1l2 4-1.5 1c1 2 2.5 3.5 4.5 4.5l1-1.5 4 2v1c0 2-1.5 3-3 3C5 14 0 9 0 3z" fill="white"/>
+    </g>
+    <text x="62" y="694" font-family="Inter, sans-serif" font-size="15" font-weight="600" fill="white">Contatar Tutor</text>
+
+    <!-- CHAT BUTTON -->
+    <rect x="196" y="664" width="163" height="50" rx="14" fill="white" stroke="#EE791C" stroke-width="2"/>
+    <!-- Chat icon -->
+    <g transform="translate(226, 680)">
+      <path d="M0 2C0 .9.9 0 2 0h10c1.1 0 2 .9 2 2v7c0 1.1-.9 2-2 2H5l-3 3v-3H2c-1.1 0-2-.9-2-2V2z" stroke="#EE791C" stroke-width="1.5" fill="none"/>
+    </g>
+    <text x="247" y="694" font-family="Inter, sans-serif" font-size="15" font-weight="600" fill="#EE791C">Chat</text>
+
+    <!-- Home indicator -->
+    <rect x="121" y="799" width="134" height="5" rx="2.5" fill="black"/>
+  </g>
+</svg>
