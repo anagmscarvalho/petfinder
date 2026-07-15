@@ -4,16 +4,6 @@ Responsável pelo carregamento do modelo OpenCLIP.
 Este módulo tem a única função de garantir que o modelo, o preprocess, o tokenizer e o device sejam
 carregados UMA ÚNICA VEZ e reutilizados por toda a aplicação e jobs em lote.
 
-Uso típico:
-
-    from src.ai.clip.model import get_clip_bundle
-
-    clip = get_clip_bundle()
-    clip.model, clip.preprocess, clip.tokenizer, clip.device
-
-Ou, de forma mais direta:
-
-    from src.ai.clip.model import get_model, get_preprocess, get_tokenizer, get_device
 """
 
 from __future__ import annotations
@@ -40,14 +30,11 @@ DEFAULT_DEVICE = os.getenv("CLIP_DEVICE")  # None => seleção automática
 
 @dataclass(frozen=True)
 class CLIPBundle:
-    """
-    Agrupa tudo que é necessário para trabalhar com o OpenCLIP:
-    o modelo em si, a função de preprocessamento de imagens, o
-    tokenizer de texto e o device onde o modelo foi carregado.
+    #Agrupa o que é necessário para trabalhar com o OpenCLIP:
+    #o modelo em si, a função de preprocessamento de imagens, o
+    #tokenizer de texto e o device onde o modelo foi carregado.
 
-    É imutável (frozen) para evitar que algum módulo consumidor
-    substitua acidentalmente o modelo em tempo de execução.
-    """
+    #É imutável (frozen) p/ evitar que substitua acidentalmente o modelo em tempo de execução.
 
     model: torch.nn.Module
     preprocess: Callable
