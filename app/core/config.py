@@ -8,5 +8,6 @@ class Settings(BaseSettings):
 	access_token_expire_minutes: int = 60
 	upload_dir: str = "uploads"
 	max_foto_mb: int = 5
+	database_url: str = "sqlite:///petfinder.db"
 
 settings = Settings()

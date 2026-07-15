@@ -1,7 +1,7 @@
 from fastapi import (
-    APIRouter, Depends, HTTPException, status, UploadFile
+    APIRouter, Depends, HTTPException, Query, status, UploadFile
 )
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 #Upload de fotos
 import io
@@ -47,6 +47,39 @@ def montar_pet_read(pet: Pet) -> PetRead:
         fotos=[FotoRead.de_foto(f) for f in pet.fotos],
     )
 
+
+# ── Listagem pública ──────────────────────────────────────────
+
+@router.get("", response_model=list[PetRead])
+def listar_pets(
+    status_filter: StatusPet | None = Query(default=None, alias="status"),
+    especie: str | None = None,
+    session: Session = Depends(get_session),
+):
+    """Lista pets com filtros opcionais por status e espécie."""
+    query = select(Pet)
+    if status_filter is not None:
+        query = query.where(Pet.status == status_filter)
+    if especie is not None:
+        query = query.where(Pet.especie == especie)
+    pets = session.exec(query).all()
+    return [montar_pet_read(p) for p in pets]
+
+
+@router.get("/{pet_id}", response_model=PetRead)
+def detalhe_pet(
+    pet_id: int,
+    session: Session = Depends(get_session),
+):
+    """Retorna detalhes de um pet pelo ID."""
+    pet = session.get(Pet, pet_id)
+    if pet is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Pet não encontrado.")
+    return montar_pet_read(pet)
+
+
+# ── Cadastro (perdido ou adoção) ──────────────────────────────
+
 @router.post("", response_model=PetRead, status_code=status.HTTP_201_CREATED)
 def cadastrar_pet(
     dados: PetCreate,
@@ -74,7 +107,17 @@ def cadastrar_pet(
     session.add(novo)
     session.commit()
     session.refresh(novo)
+
+    if dados.categoria == CategoriaCadastro.adocao:
+        valores = dados.dados_adocao.model_dump() if dados.dados_adocao else {}
+        session.add(DadosAdocao(pet_id=novo.id, **valores))
+        session.commit()
+        session.refresh(novo)
+
     return montar_pet_read(novo)
+
+
+# ── Alterar status ────────────────────────────────────────────
 
 @router.patch("/{pet_id}/status", response_model=PetRead)
 def mudar_status(
@@ -97,46 +140,10 @@ def mudar_status(
     session.add(pet)
     session.commit()
     session.refresh(pet)
-    return pet
-
-@router.post("", response_model=PetAdocaoRead, status_code=status.HTTP_201_CREATED)
-def cadastrar_pet(
-    dados: PetCreate,
-    usuario: User = Depends(usuario_logado),
-    session: Session = Depends(get_session),
-):
-    if (
-        dados.categoria == CategoriaCadastro.adocao
-        and not usuario.pode_postar_adocao
-    ):
-        raise HTTPException(
-            status.HTTP_403_FORBIDDEN,
-            "Sua conta não está aprovada para publicar pets para adoção.",
-        )
-
-    novo = Pet(
-        nome=dados.nome,
-        especie=dados.especie,
-        raca=dados.raca,
-        porte=dados.porte,
-        pelagem=dados.pelagem,
-        status=MAPA_CATEGORIA_STATUS[dados.categoria],
-        dono_id=usuario.id,
-    )
-    session.add(novo)
-    session.commit()
-    session.refresh(novo)
-
-    if dados.categoria == CategoriaCadastro.adocao:
-        valores = dados.dados_adocao.model_dump() if dados.dados_adocao else {}
-        session.add(DadosAdocao(pet_id=novo.id, **valores))
-        session.commit()
-        session.refresh(novo)
-
-    return novo
+    return montar_pet_read(pet)
 
 
-#
+# ── Upload de fotos ───────────────────────────────────────────
 
 @router.post(
     "/{pet_id}/fotos",
@@ -188,5 +195,3 @@ async def enviar_foto(
     session.refresh(foto)
 
     return FotoRead.de_foto(foto)
-
-

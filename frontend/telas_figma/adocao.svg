@@ -1,0 +1,211 @@
+<svg width="375" height="812" viewBox="0 0 375 812" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="screen"><rect width="375" height="812" fill="white"/></clipPath>
+    <filter id="shadow" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="-1" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+    <filter id="cs" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="pawGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EE791C" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#EE791C" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#screen)">
+    <rect width="375" height="812" fill="#F2EFE4"/>
+
+    <!-- STATUS BAR -->
+    <text x="32" y="28" font-family="Inter, sans-serif" font-size="15" font-weight="600" fill="black">9:41</text>
+    <rect x="293.5" y="18" width="4" height="10" rx="1" fill="black"/>
+    <rect x="299" y="15" width="4" height="13" rx="1" fill="black"/>
+    <rect x="304.5" y="12" width="4" height="16" rx="1" fill="black"/>
+    <rect x="310" y="9" width="4" height="19" rx="1" fill="black"/>
+    <circle cx="326" cy="23" r="1.5" fill="black"/>
+    <path d="M320 17c3.3-2.5 8.7-2.5 12 0" stroke="black" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <path d="M322 20c2.2-1.7 5.8-1.7 8 0" stroke="black" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <rect x="338" y="18" width="22" height="11" rx="3" stroke="black" stroke-opacity="0.35" fill="none"/>
+    <rect x="340" y="20" width="18" height="7" rx="1.5" fill="black"/>
+
+    <!-- HEADER -->
+    <text x="20" y="74" font-family="Inter, sans-serif" font-size="24" font-weight="700" fill="#455A64">Adoção</text>
+    <!-- Heart icon -->
+    <g transform="translate(100, 56)">
+      <path d="M8 14c-1-1-7-4-7-7.5C1 4 2.5 2.5 4.5 2.5c1 0 2.3.7 3.5 2 1.2-1.3 2.5-2 3.5-2C13.5 2.5 15 4 15 6.5c0 3.5-6 6.5-7 7.5z" fill="#EE791C" opacity="0.7"/>
+    </g>
+
+    <!-- SEARCH BAR -->
+    <rect x="16" y="90" width="343" height="44" rx="12" fill="white" stroke="#E6E6E6"/>
+    <circle cx="38" cy="112" r="8" stroke="#EE791C" stroke-width="2" fill="none"/>
+    <line x1="44" y1="118" x2="49" y2="123" stroke="#EE791C" stroke-width="2" stroke-linecap="round"/>
+    <text x="56" y="116" font-family="Inter, sans-serif" font-size="15" fill="#828282">Buscar pets para adoção...</text>
+
+    <!-- FILTER TABS -->
+    <rect x="16" y="146" width="70" height="32" rx="16" fill="#EE791C"/>
+    <text x="30" y="166" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="white">Todos</text>
+
+    <rect x="94" y="146" width="80" height="32" rx="16" fill="none" stroke="#E6E6E6"/>
+    <text x="108" y="166" font-family="Inter, sans-serif" font-size="12" font-weight="500" fill="#455A64">Cães 🐶</text>
+
+    <rect x="182" y="146" width="80" height="32" rx="16" fill="none" stroke="#E6E6E6"/>
+    <text x="196" y="166" font-family="Inter, sans-serif" font-size="12" font-weight="500" fill="#455A64">Gatos 🐱</text>
+
+    <rect x="270" y="146" width="90" height="32" rx="16" fill="none" stroke="#E6E6E6"/>
+    <text x="282" y="166" font-family="Inter, sans-serif" font-size="12" font-weight="500" fill="#455A64">Filhotes</text>
+
+    <!-- SECTION TITLE -->
+    <text x="20" y="210" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#455A64">Peludinhos disponíveis</text>
+    <text x="280" y="210" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#EE791C">Ver todos →</text>
+
+    <!-- PET CARD 1 - Vertical card style -->
+    <g filter="url(#cs)">
+      <rect x="16" y="224" width="165" height="220" rx="16" fill="white"/>
+    </g>
+    <!-- Photo placeholder -->
+    <rect x="24" y="232" width="149" height="120" rx="12" fill="url(#pawGrad)"/>
+    <g transform="translate(74, 278)" fill="#EE791C" opacity="0.25">
+      <ellipse cx="0" cy="0" rx="8" ry="10"/>
+      <ellipse cx="-10" cy="-12" rx="5" ry="6"/>
+      <ellipse cx="10" cy="-12" rx="5" ry="6"/>
+      <ellipse cx="-16" cy="-2" rx="4.5" ry="5.5"/>
+      <ellipse cx="16" cy="-2" rx="4.5" ry="5.5"/>
+    </g>
+    <!-- Badge -->
+    <rect x="120" y="240" width="46" height="20" rx="10" fill="#4CAF50"/>
+    <text x="126" y="254" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="white">Adoção</text>
+    <!-- Info -->
+    <text x="32" y="372" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#1A1A1A">Luna</text>
+    <text x="32" y="390" font-family="Inter, sans-serif" font-size="12" fill="#828282">Vira-lata • Fêmea</text>
+    <text x="32" y="406" font-family="Inter, sans-serif" font-size="11" fill="#828282">📍 Pedreira, Belém</text>
+    <!-- Tags -->
+    <rect x="32" y="414" width="50" height="18" rx="6" fill="#F5F5F5"/>
+    <text x="38" y="427" font-family="Inter, sans-serif" font-size="9" fill="#455A64">2 anos</text>
+    <rect x="88" y="414" width="64" height="18" rx="6" fill="#F5F5F5"/>
+    <text x="94" y="427" font-family="Inter, sans-serif" font-size="9" fill="#455A64">Vacinada</text>
+    <!-- Favorite -->
+    <g transform="translate(140, 360)">
+      <path d="M8 14c-1-1-6-4-6-7 0-2 1.5-3.5 3-3.5 1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 3-5 6-6 7z" fill="#EE791C" opacity="0.7"/>
+    </g>
+
+    <!-- PET CARD 2 -->
+    <g filter="url(#cs)">
+      <rect x="194" y="224" width="165" height="220" rx="16" fill="white"/>
+    </g>
+    <rect x="202" y="232" width="149" height="120" rx="12" fill="url(#pawGrad)"/>
+    <g transform="translate(252, 278)" fill="#EE791C" opacity="0.25">
+      <ellipse cx="0" cy="0" rx="8" ry="10"/>
+      <ellipse cx="-10" cy="-12" rx="5" ry="6"/>
+      <ellipse cx="10" cy="-12" rx="5" ry="6"/>
+      <ellipse cx="-16" cy="-2" rx="4.5" ry="5.5"/>
+      <ellipse cx="16" cy="-2" rx="4.5" ry="5.5"/>
+    </g>
+    <rect x="298" y="240" width="46" height="20" rx="10" fill="#4CAF50"/>
+    <text x="304" y="254" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="white">Adoção</text>
+    <text x="210" y="372" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#1A1A1A">Pipoca</text>
+    <text x="210" y="390" font-family="Inter, sans-serif" font-size="12" fill="#828282">Gato Rajado • Macho</text>
+    <text x="210" y="406" font-family="Inter, sans-serif" font-size="11" fill="#828282">📍 Nazaré, Belém</text>
+    <rect x="210" y="414" width="50" height="18" rx="6" fill="#F5F5F5"/>
+    <text x="216" y="427" font-family="Inter, sans-serif" font-size="9" fill="#455A64">1 ano</text>
+    <rect x="266" y="414" width="64" height="18" rx="6" fill="#F5F5F5"/>
+    <text x="272" y="427" font-family="Inter, sans-serif" font-size="9" fill="#455A64">Castrado</text>
+    <g transform="translate(318, 360)">
+      <path d="M8 14c-1-1-6-4-6-7 0-2 1.5-3.5 3-3.5 1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 3-5 6-6 7z" fill="none" stroke="#EE791C" stroke-width="1.5"/>
+    </g>
+
+    <!-- PET CARD 3 - Full width -->
+    <g filter="url(#cs)">
+      <rect x="16" y="460" width="343" height="120" rx="16" fill="white"/>
+    </g>
+    <rect x="24" y="468" width="100" height="104" rx="12" fill="url(#pawGrad)"/>
+    <g transform="translate(54, 506)" fill="#EE791C" opacity="0.25">
+      <ellipse cx="0" cy="0" rx="6" ry="8"/>
+      <ellipse cx="-8" cy="-9" rx="4" ry="5"/>
+      <ellipse cx="8" cy="-9" rx="4" ry="5"/>
+      <ellipse cx="-12" cy="-1" rx="3.5" ry="4.5"/>
+      <ellipse cx="12" cy="-1" rx="3.5" ry="4.5"/>
+    </g>
+    <rect x="80" y="474" width="38" height="18" rx="9" fill="#4CAF50"/>
+    <text x="84" y="487" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="white">Adoção</text>
+    <text x="136" y="492" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#1A1A1A">Bolt</text>
+    <text x="136" y="512" font-family="Inter, sans-serif" font-size="13" fill="#828282">Pinscher • Macho • Pequeno</text>
+    <text x="136" y="530" font-family="Inter, sans-serif" font-size="12" fill="#828282">📍 Umarizal, Belém - PA</text>
+    <rect x="136" y="540" width="46" height="18" rx="6" fill="#F5F5F5"/>
+    <text x="142" y="553" font-family="Inter, sans-serif" font-size="9" fill="#455A64">3 anos</text>
+    <rect x="188" y="540" width="48" height="18" rx="6" fill="#F5F5F5"/>
+    <text x="194" y="553" font-family="Inter, sans-serif" font-size="9" fill="#455A64">Dócil</text>
+    <rect x="242" y="540" width="64" height="18" rx="6" fill="#F5F5F5"/>
+    <text x="248" y="553" font-family="Inter, sans-serif" font-size="9" fill="#455A64">Vacinado</text>
+    <!-- Quero adotar button -->
+    <rect x="286" y="490" width="66" height="30" rx="8" fill="#EE791C"/>
+    <text x="291" y="510" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="white">Adotar</text>
+
+    <!-- PET CARD 4 - Full width -->
+    <g filter="url(#cs)">
+      <rect x="16" y="594" width="343" height="104" rx="16" fill="white"/>
+    </g>
+    <rect x="24" y="602" width="88" height="88" rx="12" fill="url(#pawGrad)"/>
+    <g transform="translate(48, 634)" fill="#EE791C" opacity="0.25">
+      <ellipse cx="0" cy="0" rx="6" ry="8"/>
+      <ellipse cx="-8" cy="-9" rx="4" ry="5"/>
+      <ellipse cx="8" cy="-9" rx="4" ry="5"/>
+      <ellipse cx="-12" cy="-1" rx="3.5" ry="4.5"/>
+      <ellipse cx="12" cy="-1" rx="3.5" ry="4.5"/>
+    </g>
+    <rect x="68" y="608" width="38" height="18" rx="9" fill="#4CAF50"/>
+    <text x="72" y="621" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="white">Adoção</text>
+    <text x="124" y="626" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#1A1A1A">Mel</text>
+    <text x="124" y="644" font-family="Inter, sans-serif" font-size="13" fill="#828282">Gata Persa • Fêmea</text>
+    <text x="124" y="662" font-family="Inter, sans-serif" font-size="12" fill="#828282">📍 Marco, Belém - PA</text>
+    <rect x="124" y="672" width="46" height="18" rx="6" fill="#F5F5F5"/>
+    <text x="130" y="685" font-family="Inter, sans-serif" font-size="9" fill="#455A64">4 anos</text>
+    <rect x="176" y="672" width="68" height="18" rx="6" fill="#F5F5F5"/>
+    <text x="182" y="685" font-family="Inter, sans-serif" font-size="9" fill="#455A64">Castrada</text>
+    <rect x="286" y="630" width="66" height="30" rx="8" fill="#EE791C"/>
+    <text x="291" y="650" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="white">Adotar</text>
+
+    <!-- BOTTOM NAV -->
+    <g filter="url(#shadow)">
+      <rect y="714" width="375" height="98" fill="#F2EFE4"/>
+    </g>
+    <line x1="0" y1="714" x2="375" y2="714" stroke="#E6E6E6" stroke-width="0.5"/>
+
+    <!-- Nav: Search -->
+    <g transform="translate(22, 726)">
+      <circle cx="15" cy="12" r="8" stroke="#455A64" stroke-width="2" fill="none"/>
+      <line x1="21" y1="18" x2="26" y2="23" stroke="#455A64" stroke-width="2" stroke-linecap="round"/>
+      <text x="3" y="40" font-family="Inter, sans-serif" font-size="10" fill="#455A64">Buscar</text>
+    </g>
+
+    <!-- Nav: Pets (active - adoption) -->
+    <g transform="translate(90, 726)">
+      <g fill="#EE791C">
+        <path d="M15 20c-1-1-7-5-7-8.5 0-2.5 2-4 3.5-4 1 0 2.5.7 3.5 2 1-1.3 2.5-2 3.5-2 1.5 0 3.5 1.5 3.5 4 0 3.5-6 7.5-7 8.5z"/>
+      </g>
+      <text x="3" y="40" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#EE791C">Adoção</text>
+    </g>
+
+    <!-- Nav: Add -->
+    <g transform="translate(168, 718)">
+      <circle cx="20" cy="16" r="24" fill="#EE791C"/>
+      <line x1="20" y1="6" x2="20" y2="26" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <line x1="10" y1="16" x2="30" y2="16" stroke="white" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+    <!-- Nav: Notifications -->
+    <g transform="translate(250, 726)">
+      <path d="M15 3a9 9 0 0 1 9 9v5l3 3H3l3-3v-5a9 9 0 0 1 9-9z" stroke="#455A64" stroke-width="1.8" fill="none"/>
+      <path d="M12 22c0 2 1.5 3 3 3s3-1 3-3" stroke="#455A64" stroke-width="1.8" fill="none"/>
+      <text x="-2" y="40" font-family="Inter, sans-serif" font-size="10" fill="#455A64">Alertas</text>
+    </g>
+
+    <!-- Nav: Profile -->
+    <g transform="translate(322, 726)">
+      <circle cx="13" cy="8" r="6" stroke="#455A64" stroke-width="1.8" fill="none"/>
+      <path d="M1 24c0-6 5-10 12-10s12 4 12 10" stroke="#455A64" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <text x="1" y="40" font-family="Inter, sans-serif" font-size="10" fill="#455A64">Perfil</text>
+    </g>
+
+    <!-- Home indicator -->
+    <rect x="121" y="799" width="134" height="5" rx="2.5" fill="black"/>
+  </g>
+</svg>

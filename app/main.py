@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
  
 from app.core.database import criar_banco_e_tabelas
@@ -17,6 +18,14 @@ async def lifespan(app: FastAPI):
 Path(settings.upload_dir).mkdir(exist_ok=True)
 
 app = FastAPI(title="PetFinder API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],       # Em produção, restringir às origens reais
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.mount(
     f"/{settings.upload_dir}",
