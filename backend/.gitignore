@@ -1,36 +1,6 @@
-# Dependencies
-node_modules/
-__pycache__/
-*.pyc
-.venv/
+# para o .env não ser acessível
+
 venv/
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Build output
-dist/
-build/
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-npm-debug.log*
-
-# CLIP model cache
-.cache/
-
-# Database
+__pycache__/
 *.db
-
-# Uploads
-uploads/
+.env
