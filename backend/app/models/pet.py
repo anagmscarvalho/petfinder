@@ -28,7 +28,7 @@ class Pet(SQLModel, table=True):
     bairro: Bairro | None = Field(default=None, description="Bairro onde o pet foi visto ou perdido")
     atende_por: str | None = Field(default=None, description="Outros nomes pelos quais o pet atende")
     docil: bool | None = Field(default=None, description="Se o pet é dócil")
-
+    detalhes: str | None = Field(default=None, description="Detalhes livres sobre o pet, como idade, cor dos olhos, se é castrado, etc.")
 
     dono_id: int | None = Field(
         default=None,

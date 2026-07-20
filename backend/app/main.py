@@ -8,13 +8,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import criar_banco_e_tabelas
 from app.routers import anuncios, auth, users, pets, feed
 from app.core.config import settings
+from app.routers import auth, users, pets, anuncios, feed, search, chat
+
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    Path(settings.upload_dir).mkdir(exist_ok=True)
     criar_banco_e_tabelas()
     yield
-
-Path(settings.upload_dir).mkdir(exist_ok=True)
 
 app = FastAPI(title="PetFinder API", lifespan=lifespan)
 
@@ -37,6 +39,8 @@ app.include_router(users.router)
 app.include_router(pets.router)
 app.include_router(anuncios.router)
 app.include_router(feed.router)
+app.include_router(search.router)
+app.include_router(chat.router)
 
 
 

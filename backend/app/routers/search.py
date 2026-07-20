@@ -38,6 +38,7 @@ async def buscar_por_foto(
     pets = session.exec(
         select(Pet).where(Pet.id.in_(ids), Pet.status == StatusPet.perdido)
     ).all()
+    pets = [p for p in pets if p.fotos]
     por_id = {p.id: p for p in pets}
 
     return [

@@ -44,11 +44,6 @@ class PetCreate(BaseModel):
     dados_adocao: DadosAdocaoCreate | None = None
 
     @model_validator(mode="after")
-    def adocao_so_para_adocao(self):
-        if self.categoria == CategoriaCadastro.perdido and self.dados_adocao is not None:
-            raise ValueError("Pets perdidos não recebem dados de adoção.")
-        return self
-    
     def regras_por_categoria(self):
         if self.categoria == CategoriaCadastro.perdido:
             if self.dados_adocao is not None:
@@ -58,8 +53,6 @@ class PetCreate(BaseModel):
         return self
     
     atende_por: str | None = None
-    historia: str | None = None
-    personalidade: str | None = None
     docil: bool | None = None
 
 # 4. DadosAdocaoRead
@@ -95,7 +88,7 @@ class PetRead(BaseModel):
 
 # 6. PetAdocaoRead que herda de PetRead e usa DadosAdocaoRead
 class PetAdocaoRead(PetRead):
-    dados_adocao: DadosAdocaoRead | None		
+    dados_adocao: DadosAdocaoRead | None = None	
 
 class PetStatusUpdate(BaseModel):
     status: StatusPet

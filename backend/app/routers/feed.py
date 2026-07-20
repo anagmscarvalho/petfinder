@@ -51,6 +51,7 @@ def feed(
         consulta = consulta.where(Pet.bairro.in_(bairros))  
 
     pets = session.exec(consulta.order_by(Pet.id.desc())).all()
+    pets = [p for p in pets if p.fotos]        # só publica quem tem foto
 
     anuncios = session.exec(
         select(Anuncio).where(Anuncio.ativo == True).order_by(Anuncio.id.desc())
