@@ -25,7 +25,7 @@ FALLBACK_CAPTION_TEMPLATES: Tuple[str, ...] = (
 
 
 def build_fallback_caption(breed: str, rng: Optional[random.Random] = None) -> str:
-    """Gera uma legenda simples baseada só no nome da raça (sem Florence)."""
+    #Gera uma legenda simples baseada só no nome da raça (sem Florence)
     rng = rng or random
     template = rng.choice(FALLBACK_CAPTION_TEMPLATES)
     return template.format(breed=breed)
@@ -33,15 +33,10 @@ def build_fallback_caption(breed: str, rng: Optional[random.Random] = None) -> s
 
 # Utilitários de parsing do Stanford Dogs
 def _parse_breed_from_folder(folder_name: str) -> str:
-   
     #Extrai o nome da raça a partir do nome da pasta do Stanford Dogs.
-    #Formato original: "<wordnet_id>-<nome_da_raça>"
-    #Exemplo: "n02085620-Chihuahua" -> "Chihuahua"
-    #         "n02093991-Irish_terrier" -> "Irish terrier"
-    
     _, _, raw_name = folder_name.partition("-")
     if not raw_name:
-        raw_name = folder_name  
+        raw_name = folder_name  # formato inesperado: usa a pasta inteira
     return raw_name.replace("_", " ").strip()
 
 
@@ -77,8 +72,7 @@ def _load_official_split(root_dir: Path, split: str) -> Optional[set]:
     return relative_paths
 
 
-def _scan_dataset(images_dir: Path) -> List[Tuple[Path, str, str]]:
-    
+def scan_dataset(images_dir: Path) -> List[Tuple[Path, str, str]]:
     if not images_dir.is_dir():
         raise FileNotFoundError(
             f"Pasta de imagens do Stanford Dogs não encontrada: '{images_dir}'. "
@@ -111,10 +105,7 @@ def _scan_dataset(images_dir: Path) -> List[Tuple[Path, str, str]]:
 
 
 def _load_caption_cache(cache_path: Optional[Path]) -> Dict[str, str]:
-    #Carrega o cache de legendas gerado por `build_caption_cache.py`
-    #(Florence-2 + text_builder). Retorna um dicionário vazio se o
-    #arquivo não existir — nesse caso, o dataset usa apenas o fallback
-    #baseado no nome da raça.
+    #Carrega o cache de legendas gerado por `build_caption_cache.py` (Florence-2 + text_builder)
     if cache_path is None:
         logger.warning(
             "Nenhum 'caption_cache_path' informado — todas as legendas "
@@ -147,12 +138,10 @@ def _load_caption_cache(cache_path: Optional[Path]) -> Dict[str, str]:
     return captions
 
 
+
 # Dataset
 @dataclass
 class CaptionSourceStats:
-    """Estatísticas de origem das legendas usadas em uma época — útil para
-    reportar no TCC quanto do fine-tuning usou legenda real do Florence
-    vs. template de fallback."""
 
     from_cache: int = 0
     from_fallback: int = 0
@@ -195,7 +184,7 @@ class StanfordDogsDataset(Dataset):
         self._caption_rng = random.Random(seed + 1)
         self.stats = CaptionSourceStats()
 
-        all_samples = _scan_dataset(self.images_dir)
+        all_samples = scan_dataset(self.images_dir)
 
         official_test_paths = (
             _load_official_split(self.root_dir, "test") if use_official_split else None
@@ -205,8 +194,7 @@ class StanfordDogsDataset(Dataset):
             test_samples = [s for s in all_samples if s[1] in official_test_paths]
             trainval_samples = [s for s in all_samples if s[1] not in official_test_paths]
         else:
-            # Sem split oficial: separa 20% para teste de forma aleatória
-            # e reprodutível (mesma seed sempre gera a mesma divisão).
+            # Sem split oficial: separa 20% para teste de forma aleatória e reprodutível (mesma seed)
             shuffled = all_samples.copy()
             self._rng.shuffle(shuffled)
             cut = int(len(shuffled) * 0.8)
@@ -254,7 +242,7 @@ class StanfordDogsDataset(Dataset):
         return limited
 
     def get_class_names(self) -> List[str]:
-        """Retorna a lista ordenada de todas as raças presentes no dataset."""
+        #Retorna a lista ordenada de todas as raças presentes no dataset
         return self.class_names
 
     def __len__(self) -> int:
@@ -279,7 +267,6 @@ class StanfordDogsDataset(Dataset):
         text_tokens = self.tokenizer([caption])[0]  # tokenizer do OpenCLIP espera uma lista
 
         return image_tensor, text_tokens, breed, caption
-
 
 
 # Execução direta: smoke test manual
