@@ -40,10 +40,7 @@ class _ChromaCollectionLoader:
             logger.info("Abrindo ChromaDB persistente em '%s'...", DEFAULT_PERSIST_DIR)
             client = chromadb.PersistentClient(path=DEFAULT_PERSIST_DIR)
 
-            # "cosine" é a métrica certa aqui: os embeddings do CLIP já
-            # saem normalizados (norma L2 = 1) em image_embedding.py e
-            # text_embedding.py, então distância de cosseno equivale ao
-            # produto interno usado em app/clip/similarity.py.
+            # "cosine" é a métrica certa aqui: os embeddings do CLIP já saem normalizados (norma L2 = 1) em image_embedding.py e text_embedding.py
             self._collection = client.get_or_create_collection(
                 name=DEFAULT_COLLECTION_NAME,
                 metadata={"hnsw:space": "cosine"},
