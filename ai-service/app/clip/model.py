@@ -13,12 +13,15 @@ logger = logging.getLogger(__name__)
 
 
 
+# Configuração padrão
 DEFAULT_MODEL_NAME = os.getenv("CLIP_MODEL_NAME", "ViT-B-32")
 DEFAULT_PRETRAINED = os.getenv("CLIP_PRETRAINED", "laion2b_s34b_b79k")
 DEFAULT_DEVICE = os.getenv("CLIP_DEVICE")  # None => seleção automática
+ 
+CLIP_FINETUNED_CHECKPOINT = os.getenv("CLIP_FINETUNED_CHECKPOINT")
 
 
-@dataclass(frozen=True) # É frozen p/evitar que algum módulo consumidor substitua acidentalmente o modelo em tempo de execução
+@dataclass(frozen=True) # É frozen p/evitar que algum módulo substitua o modelo em tempo de execução
 class CLIPBundle:
 
     model: torch.nn.Module
@@ -49,17 +52,11 @@ class _CLIPModelLoader:
                     cls._instance._load_lock = threading.Lock()
         return cls._instance
 
-    # seleção de device 
+    # seleção de device
 
     @staticmethod
     def _select_device(device_override: Optional[str]) -> torch.device:
-        """
-        Escolhe automaticamente o melhor device disponível, a menos
-        que um device específico tenha sido informado explicitamente
-        (via parâmetro ou variável de ambiente CLIP_DEVICE).
-
-        Ordem de preferência: CUDA > MPS (Apple Silicon) > CPU.
-        """
+        
         if device_override:
             return torch.device(device_override)
 
@@ -116,8 +113,34 @@ class _CLIPModelLoader:
                     f"'{model_name}' com pesos '{pretrained}'."
                 ) from exc
 
-            # Modo de avaliação: desativa dropout/batchnorm em modo de treino
+            if CLIP_FINETUNED_CHECKPOINT:
+                logger.info(
+                    "Carregando checkpoint fine-tuned de '%s' por cima dos "
+                    "pesos pré-treinados...",
+                    CLIP_FINETUNED_CHECKPOINT,
+                )
+                try:
+                    state_dict = torch.load(CLIP_FINETUNED_CHECKPOINT, map_location=selected_device)
+                    model.load_state_dict(state_dict)
+                except Exception as exc:
+                    logger.exception(
+                        "Falha ao carregar o checkpoint fine-tuned '%s'.",
+                        CLIP_FINETUNED_CHECKPOINT,
+                    )
+                    raise RuntimeError(
+                        f"Não foi possível carregar o checkpoint fine-tuned "
+                        f"'{CLIP_FINETUNED_CHECKPOINT}'. Verifique se o "
+                        f"arquivo existe e se foi salvo pela mesma arquitetura "
+                        f"('{model_name}')."
+                    ) from exc
+
+            # Modo de avaliação:desativa dropout/batchnorm em modo de treino, evita resultados não determinísticos ao gerar embeddings.
             model.eval()
+
+            effective_pretrained = pretrained
+            if CLIP_FINETUNED_CHECKPOINT:
+                checkpoint_name = os.path.basename(CLIP_FINETUNED_CHECKPOINT)
+                effective_pretrained = f"{pretrained}+finetuned:{checkpoint_name}"
 
             self._bundle = CLIPBundle(
                 model=model,
@@ -125,7 +148,7 @@ class _CLIPModelLoader:
                 tokenizer=tokenizer,
                 device=selected_device,
                 model_name=model_name,
-                pretrained=pretrained,
+                pretrained=effective_pretrained,
             )
 
             logger.info("Modelo OpenCLIP carregado com sucesso em '%s'.", selected_device)
