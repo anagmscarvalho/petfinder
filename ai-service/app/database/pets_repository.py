@@ -1,25 +1,3 @@
-"""
-app/database/pets_repository.py
-
-Camada de acesso a dados: grava, busca e remove embeddings de pets no
-ChromaDB (ver `app/database/chroma_client.py`).
-
-Este módulo NÃO gera embeddings (isso é `app/clip/*`) e NÃO decide o
-formato da resposta HTTP (isso é `app/api/schemas.py`). Ele só fala
-com o banco vetorial.
-
-Contrato com o backend
-------------------------
-Confirmado lendo `backend/ia_falsa.py` e `backend/app/services/ia.py`
-(branch `backend`):
-    - `pet_id` é sempre `int` — é o id autoincrementado da tabela
-      `pets` no SQLite do backend, não um UUID.
-    - O ChromaDB exige que IDs sejam string, então a conversão pra
-      `str(pet_id)` acontece só na hora de falar com o Chroma — o
-      resto do serviço de IA (rotas, schemas) trabalha com `int` o
-      tempo todo, igual ao backend.
-"""
-
 from __future__ import annotations
 
 import logging
@@ -40,8 +18,8 @@ class PetMatch:
     """Um resultado de busca por similaridade, já pronto para a API devolver."""
 
     pet_id: int
-    score: float                  # similaridade de cosseno (tipicamente ~[0, 1]) — campo exigido pelo contrato do backend
-    similarity_percentage: float  # 0-100, campo extra (não usado pelo backend hoje, útil pra UI futura)
+    score: float                  # similaridade de cosseno (tipicamente ~[0, 1]) 
+    similarity_percentage: float  # 0-100
     color: Optional[str]
     size: Optional[str]
 
@@ -176,10 +154,8 @@ search_by_image_embedding = search_by_embedding
 search_by_text_embedding = search_by_embedding
 
 
-# ---------------------------------------------------------------------------
-# Execução direta: smoke test manual (não depende de CLIP/Florence — usa
-# vetores aleatórios só para validar upsert/query/delete no ChromaDB)
-# ---------------------------------------------------------------------------
+
+# Execução direta: smoke test manual (vetores aleatórios só para validar upsert/query/delete no ChromaDB)
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
