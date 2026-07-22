@@ -1,7 +1,3 @@
-#Ponto de entrada do serviço de IA (FastAPI).
-#P/Rodar localmente:
-#    uvicorn app.main:app --reload --port 8000
-
 from __future__ import annotations
 
 from fastapi import FastAPI
