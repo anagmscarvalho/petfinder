@@ -32,31 +32,7 @@ def upsert_pet_embedding(
     size: Optional[str] = None,
     clip_model_version: Optional[str] = None,
 ) -> None:
-    """
-    Insere ou atualiza o embedding de um pet (upsert por `pet_id`).
-    Chamado por `POST /embeddings`, que o backend aciona depois de criar
-    o registro do pet no SQLite (ver `gravar_embedding` em
-    `backend/app/services/ia.py`).
-
-    Parâmetros:
-        pet_id: id do pet no SQLite do backend.
-        image_embedding: embedding da foto, gerado por
-                         `app/clip/image_embedding.generate_image_embedding`.
-        text_embedding: embedding da legenda estruturada (cor/porte em
-                        português). O ChromaDB, nesta coleção, indexa só
-                        pelo `image_embedding` — o `text_embedding` é
-                        aceito aqui para manter a assinatura simétrica
-                        com uma futura coleção de busca por texto
-                        dedicada, mas não é persistido ainda.
-        color, size: atributos em português (ver
-                     `app/processing/translate.py`), salvos como
-                     metadata do Chroma — permitem filtro direto
-                     (ex.: "só cães pretos") sem decodificar o vetor.
-        clip_model_version: identifica qual checkpoint do CLIP gerou o
-                     embedding — útil para saber quais itens precisam
-                     ser reprocessados depois de um novo fine-tuning
-                     (ver `training/finetune_clip.py`).
-    """
+    
     collection = get_pet_embeddings_collection()
 
     metadata = {"color": color or "", "size": size or ""}
@@ -82,14 +58,7 @@ def upsert_pet_embedding(
 
 
 def delete_pet_embedding(pet_id: int) -> None:
-    """
-    Remove o embedding de um pet. Chamado por `DELETE /embeddings/{pet_id}`
-    (ex.: pet foi encontrado, adotado ou removido no backend).
-
-    O backend (`remover_embedding` em `services/ia.py`) só loga aviso se
-    isso falhar — não trava o fluxo dele —, mas registramos o erro aqui
-    também, pra não desaparecer silenciosamente.
-    """
+    
     collection = get_pet_embeddings_collection()
     try:
         collection.delete(ids=[str(pet_id)])
@@ -118,15 +87,7 @@ def search_by_embedding(
     query_embedding: np.ndarray,
     match_count: int = DEFAULT_MATCH_COUNT,
 ) -> List[PetMatch]:
-    """
-    Busca os pets mais parecidos com um embedding de consulta.
-
-    Usada tanto por `POST /compare` (embedding de imagem, via
-    `search_by_image_embedding`) quanto por `POST /search` (embedding de
-    texto, via `search_by_text_embedding`) — é a mesma função por baixo,
-    porque o CLIP projeta imagem e texto no mesmo espaço vetorial, e o
-    que fica salvo por pet é sempre o embedding de imagem.
-    """
+    
     collection = get_pet_embeddings_collection()
 
     try:
@@ -147,12 +108,10 @@ def search_by_embedding(
         for pid, dist, meta in zip(ids, distances, metadatas)
     ]
 
-
 # Aliases explícitos para deixar claro, no ponto de chamada (routes.py),
 # qual caso de uso está sendo atendido — mesma implementação por baixo.
 search_by_image_embedding = search_by_embedding
 search_by_text_embedding = search_by_embedding
-
 
 
 # Execução direta: smoke test manual (vetores aleatórios só para validar upsert/query/delete no ChromaDB)
