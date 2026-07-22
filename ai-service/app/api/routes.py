@@ -14,6 +14,7 @@ from app.database.pets_repository import (
 )
 from app.florence.caption import generate_caption
 from app.processing.extract_attributes import extract_attributes
+from app.processing.text_builder import build_pt_caption
 from app.processing.translate import translate_attributes
 
 from .schemas import (
@@ -27,16 +28,6 @@ from .schemas import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-
-def _build_pt_caption(color_pt: str | None, size_pt: str | None) -> str:
-    
-    parts = ["cachorro"]
-    if color_pt:
-        parts.append(f"cor: {color_pt}")
-    if size_pt:
-        parts.append(f"porte: {size_pt}")
-    return "; ".join(parts)
 
 
 def _to_match_response(match) -> PetMatchResponse:
@@ -54,15 +45,15 @@ async def gravar_embedding(
     photo: UploadFile = File(...),
     pet_id: int = Form(...),
 ) -> OkResponse:
-    #Grava o embedding de um pet: gera legenda (Florence), extrai cor/porte, traduz pra português, gera os embeddings (CLIP) e salva no ChromaDB.
-
+    
+    # Grava o embedding de um pet: gera legenda (Florence), extrai cor/porte, traduz pra português, gera os embeddings (CLIP) e salva no ChromaDB.
     image_bytes = await photo.read()
 
     try:
         caption_en = generate_caption(image_bytes)
         attributes = extract_attributes(caption_en)
         translated = translate_attributes(attributes)
-        caption_pt = _build_pt_caption(translated["color"], translated["size"])
+        caption_pt = build_pt_caption(translated["color"], translated["size"])
 
         image_embedding = generate_image_embedding(image_bytes)
         text_embedding = generate_text_embedding(caption_pt)
@@ -85,15 +76,14 @@ async def gravar_embedding(
 
 @router.delete("/embeddings/{pet_id}", response_model=OkResponse)
 async def remover_embedding(pet_id: int) -> OkResponse:
-    #Remove o embedding de um pet (ex.: pet encontrado, adotado ou removido no backend). 
+    #Remove o embedding de um pet (ex.: pet encontrado, adotado ou removido)
     delete_pet_embedding(pet_id)
     return OkResponse(ok=True)
 
 
 @router.post("/compare", response_model=CompareImageResponse)
 async def compare_image(photo: UploadFile = File(...)) -> CompareImageResponse:
-    
-    #Recebe a foto de um animal encontrado e retorna {"matches": [{"pet_id", "score", ...}]}
+    #Recebe a foto de um animal encontrado e retorna {"matches": [{"pet_id", "score", ...}]} 
     image_bytes = await photo.read()
 
     try:
@@ -116,7 +106,6 @@ async def compare_image(photo: UploadFile = File(...)) -> CompareImageResponse:
 
 @router.post("/search", response_model=TextSearchResponse)
 async def search_by_text(request: TextSearchRequest) -> TextSearchResponse:
-   
     #Busca pets a partir de uma descrição em texto livre, em português
     try:
         query_embedding = generate_text_embedding(request.query)
