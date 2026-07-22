@@ -1,17 +1,3 @@
-"""
-app/database/chroma_client.py
-
-Carregamento único da coleção do ChromaDB — mesmo padrão de singleton
-usado em `app/clip/model.py` e `app/florence/model.py`.
-
-Diferente do que tentamos antes com Supabase, o ChromaDB roda embutido
-no próprio processo do serviço de IA: não precisa de conta na nuvem
-nem de outro serviço rodando, os dados ficam salvos em disco na pasta
-`CHROMA_PERSIST_DIR`. Isso bate com o que o README do backend documenta
-("cada serviço é dono do seu próprio banco") e é mais simples de
-configurar para o TCC — sem variável de ambiente de credencial nenhuma.
-"""
-
 from __future__ import annotations
 
 import logging
