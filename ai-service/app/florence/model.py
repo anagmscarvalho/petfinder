@@ -1,13 +1,3 @@
-#Responsável pelo carregamento do modelo Florence-2.
-
-#Segue o mesmo padrão de `ai/clip/model.py`: singleton thread-safe,
-#carregado uma única vez, com seleção automática de device e
-#configuração centralizada via variáveis de ambiente.
-
-#Este módulo NÃO gera legendas (isso é `caption.py`) e NÃO detecta
-#objetos (isso será `detector.py`).
-
-
 from __future__ import annotations
 
 import logging
@@ -23,13 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 # Configuração padrão
-# ---------------------------------------------------------------------------
 DEFAULT_MODEL_NAME = os.getenv("FLORENCE_MODEL_NAME", "microsoft/Florence-2-base")
 DEFAULT_DEVICE = os.getenv("FLORENCE_DEVICE")  # None => seleção automática
 
-# Algumas versões da biblioteca `transformers` têm incompatibilidade entre
-# o código customizado do Florence-2 e a implementação de atenção "sdpa".
-# "eager" é a opção mais compatível, ainda que um pouco mais lenta.
 DEFAULT_ATTN_IMPLEMENTATION = os.getenv("FLORENCE_ATTN_IMPLEMENTATION", "eager")
 
 
@@ -37,13 +23,13 @@ DEFAULT_ATTN_IMPLEMENTATION = os.getenv("FLORENCE_ATTN_IMPLEMENTATION", "eager")
 class FlorenceBundle:
     """Agrupa o modelo Florence-2, o processor, o device e o dtype usados."""
 
-    model: Any  # AutoModelForCausalLM (tipo dinâmico, definido pelo trust_remote_code)
+    model: Any  
     processor: Any  # AutoProcessor
     device: torch.device
     dtype: torch.dtype
     model_name: str
 
-    def __repr__(self) -> str:  # pragma: no cover - cosmético
+    def __repr__(self) -> str:  
         return (
             f"FlorenceBundle(model_name={self.model_name!r}, "
             f"device={self.device}, dtype={self.dtype})"
@@ -51,11 +37,6 @@ class FlorenceBundle:
 
 
 class _FlorenceModelLoader:
-    """
-    Singleton thread-safe responsável por carregar o Florence-2 apenas
-    uma vez durante o ciclo de vida do processo — mesma lógica de
-    `_CLIPModelLoader` em `ai/clip/model.py`.
-    """
 
     _instance: Optional["_FlorenceModelLoader"] = None
     _instance_lock = threading.Lock()
@@ -81,9 +62,6 @@ class _FlorenceModelLoader:
 
     @staticmethod
     def _select_dtype(device: torch.device) -> torch.dtype:
-        # float16 reduz uso de memória e acelera bastante em GPU. Em CPU
-        # mantemos float32, já que float16 não tem suporte otimizado para
-        # a maioria das operações fora de GPU.
         return torch.float16 if device.type == "cuda" else torch.float32
 
     def load(
@@ -93,25 +71,7 @@ class _FlorenceModelLoader:
         attn_implementation: str = DEFAULT_ATTN_IMPLEMENTATION,
         force_reload: bool = False,
     ) -> FlorenceBundle:
-        """
-        Carrega o Florence-2 caso ainda não tenha sido carregado.
-        Chamadas subsequentes retornam o bundle em cache.
-
-        Parâmetros:
-            model_name: checkpoint do Florence-2 no Hugging Face
-                        (ex.: "microsoft/Florence-2-base",
-                        "microsoft/Florence-2-large").
-            device: força um device específico. Se None, escolhe
-                    automaticamente (CUDA > MPS > CPU).
-            attn_implementation: implementação de atenção usada pelo
-                    `transformers` ("eager", "sdpa", ...). "eager" é o
-                    valor mais compatível com o código customizado do
-                    Florence-2.
-            force_reload: ignora o cache e recarrega do zero.
-
-        Retorna:
-            FlorenceBundle contendo model, processor, device e dtype.
-        """
+        
         if self._bundle is not None and not force_reload:
             return self._bundle
 
@@ -130,10 +90,7 @@ class _FlorenceModelLoader:
             )
 
             try:
-                # trust_remote_code=True é necessário: o Florence-2 usa
-                # código de modelagem customizado, publicado pela própria
-                # Microsoft junto com os pesos no Hugging Face. Só use
-                # este parâmetro com fontes confiáveis, como é o caso aqui.
+                # trust_remote_code=True é necessário p/ Florence-2 
                 model = AutoModelForCausalLM.from_pretrained(
                     model_name,
                     torch_dtype=dtype,
@@ -174,8 +131,8 @@ class _FlorenceModelLoader:
         return self._bundle is not None
 
 
+
 # API pública do módulo
-# ---------------------------------------------------------------------------
 _loader = _FlorenceModelLoader()
 
 
@@ -219,12 +176,11 @@ def is_model_loaded() -> bool:
     return _loader.is_loaded
 
 
-# Execução direta: smoke test manual (python -m src.ai.florence.model)
-# ---------------------------------------------------------------------------
+
+# Execução direta: smoke test manual (python -m app.florence.model)
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     bundle = get_florence_bundle()
     print(bundle)
     print("Modelo carregado?", is_model_loaded())
-
