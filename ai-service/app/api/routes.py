@@ -30,11 +30,7 @@ router = APIRouter()
 
 
 def _build_pt_caption(color_pt: str | None, size_pt: str | None) -> str:
-    """
-    Monta a legenda final em português a partir dos atributos
-    traduzidos. Versão mínima — será substituída por
-    `app/processing/text_builder.py`
-    """
+    
     parts = ["cachorro"]
     if color_pt:
         parts.append(f"cor: {color_pt}")
@@ -58,11 +54,8 @@ async def gravar_embedding(
     photo: UploadFile = File(...),
     pet_id: int = Form(...),
 ) -> OkResponse:
-    
-    #Grava o embedding de um pet: gera legenda (Florence), extrai
-    #cor/porte, traduz pra português, gera os embeddings (CLIP) e salva
-    #no ChromaDB.
-    
+    #Grava o embedding de um pet: gera legenda (Florence), extrai cor/porte, traduz pra português, gera os embeddings (CLIP) e salva no ChromaDB.
+
     image_bytes = await photo.read()
 
     try:
@@ -92,20 +85,15 @@ async def gravar_embedding(
 
 @router.delete("/embeddings/{pet_id}", response_model=OkResponse)
 async def remover_embedding(pet_id: int) -> OkResponse:
-    """
-    Remove o embedding de um pet (ex.: pet encontrado, adotado ou
-    removido no backend).
-    """
+    #Remove o embedding de um pet (ex.: pet encontrado, adotado ou removido no backend). 
     delete_pet_embedding(pet_id)
     return OkResponse(ok=True)
 
 
 @router.post("/compare", response_model=CompareImageResponse)
 async def compare_image(photo: UploadFile = File(...)) -> CompareImageResponse:
-    """
-    Recebe a foto de um animal encontrado e retorna
-    {"matches": [{"pet_id", "score", ...}]}
-    """
+    
+    #Recebe a foto de um animal encontrado e retorna {"matches": [{"pet_id", "score", ...}]}
     image_bytes = await photo.read()
 
     try:
@@ -128,9 +116,8 @@ async def compare_image(photo: UploadFile = File(...)) -> CompareImageResponse:
 
 @router.post("/search", response_model=TextSearchResponse)
 async def search_by_text(request: TextSearchRequest) -> TextSearchResponse:
-    """
-    Busca pets a partir de texto livre em português.
-    """
+   
+    #Busca pets a partir de uma descrição em texto livre, em português
     try:
         query_embedding = generate_text_embedding(request.query)
         matches = search_by_text_embedding(query_embedding, match_count=request.match_count)
