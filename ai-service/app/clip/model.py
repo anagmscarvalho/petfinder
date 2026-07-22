@@ -1,11 +1,3 @@
-"""
-Responsável pelo carregamento do modelo OpenCLIP.
-
-Este módulo tem a única função de garantir que o modelo, o preprocess, o tokenizer e o device sejam
-carregados UMA ÚNICA VEZ e reutilizados por toda a aplicação e jobs em lote.
-
-"""
-
 from __future__ import annotations
 
 import logging
@@ -20,21 +12,14 @@ import open_clip
 logger = logging.getLogger(__name__)
 
 
-# Configuração padrão
-# Estes valores podem ser sobrescritos por variáveis de ambiente
 
 DEFAULT_MODEL_NAME = os.getenv("CLIP_MODEL_NAME", "ViT-B-32")
 DEFAULT_PRETRAINED = os.getenv("CLIP_PRETRAINED", "laion2b_s34b_b79k")
 DEFAULT_DEVICE = os.getenv("CLIP_DEVICE")  # None => seleção automática
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True) # É frozen p/evitar que algum módulo consumidor substitua acidentalmente o modelo em tempo de execução
 class CLIPBundle:
-    #Agrupa o que é necessário para trabalhar com o OpenCLIP:
-    #o modelo em si, a função de preprocessamento de imagens, o
-    #tokenizer de texto e o device onde o modelo foi carregado.
-
-    #É imutável (frozen) p/ evitar que substitua acidentalmente o modelo em tempo de execução.
 
     model: torch.nn.Module
     preprocess: Callable
@@ -51,15 +36,6 @@ class CLIPBundle:
 
 
 class _CLIPModelLoader:
-    """
-    Singleton thread-safe responsável por carregar o OpenCLIP apenas
-    uma vez durante o ciclo de vida do processo.
-
-    Implementado como singleton (e não como simples variáveis de
-    módulo) para permitir, no futuro, múltiplas configurações
-    nomeadas (ex.: um modelo maior para o servidor e um menor para
-    testes locais) sem reescrever a lógica de carregamento.
-    """
 
     _instance: Optional["_CLIPModelLoader"] = None
     _instance_lock = threading.Lock()
@@ -73,7 +49,7 @@ class _CLIPModelLoader:
                     cls._instance._load_lock = threading.Lock()
         return cls._instance
 
-    # -- seleção de device ---------------------------------------------
+    # seleção de device 
 
     @staticmethod
     def _select_device(device_override: Optional[str]) -> torch.device:
@@ -95,7 +71,7 @@ class _CLIPModelLoader:
 
         return torch.device("cpu")
 
-    # -- carregamento -----------------------------------------------------
+    # carregamento 
 
     def load(
         self,
@@ -104,30 +80,12 @@ class _CLIPModelLoader:
         device: Optional[str] = DEFAULT_DEVICE,
         force_reload: bool = False,
     ) -> CLIPBundle:
-        """
-        Carrega o modelo OpenCLIP caso ainda não tenha sido carregado.
-        Chamadas subsequentes retornam o mesmo objeto em cache,
-        independentemente de quem as fez (API, notebook, worker de
-        batch), evitando recarregar pesos e duplicar uso de memória.
-
-        Parâmetros:
-            model_name: arquitetura do OpenCLIP (ex.: "ViT-B-32").
-            pretrained: nome do checkpoint pré-treinado (ex.: "laion2b_s34b_b79k").
-            device: força um device específico ("cuda", "cpu", "mps").
-                    Se None, o device é escolhido automaticamente.
-            force_reload: ignora o cache e recarrega o modelo do zero.
-                          Útil em notebooks ao trocar de modelo em tempo
-                          de execução.
-
-        Retorna:
-            CLIPBundle contendo model, preprocess, tokenizer e device.
-        """
+        
         if self._bundle is not None and not force_reload:
             return self._bundle
 
         with self._load_lock:
-            # Checagem dupla: outra thread pode ter carregado o modelo
-            # enquanto esperávamos o lock.
+            # Checagem dupla
             if self._bundle is not None and not force_reload:
                 return self._bundle
 
@@ -158,9 +116,7 @@ class _CLIPModelLoader:
                     f"'{model_name}' com pesos '{pretrained}'."
                 ) from exc
 
-            # Modo de avaliação: desativa dropout/batchnorm em modo de
-            # treino, evitando resultados não determinísticos ao gerar
-            # embeddings.
+            # Modo de avaliação: desativa dropout/batchnorm em modo de treino
             model.eval()
 
             self._bundle = CLIPBundle(
@@ -182,12 +138,6 @@ class _CLIPModelLoader:
 
 
 # API pública do módulo
-# São estas as funções que o restante da aplicação (image_embedding.py,
-# text_embedding.py, batch_embedding.py, rotas da API,) deve
-# importar. Elas escondem o singleton interno e garantem carregamento
-# preguiçoso (lazy loading): o modelo só é efetivamente carregado na
-# primeira chamada.
-
 _loader = _CLIPModelLoader()
 
 
@@ -231,7 +181,8 @@ def is_model_loaded() -> bool:
     return _loader.is_loaded
 
 
-# Execução direta: smoke test manual (python -m src.ai.clip.model)
+
+# Execução direta: smoke test manual 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
