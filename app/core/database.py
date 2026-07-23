@@ -1,10 +1,10 @@
 from sqlmodel import SQLModel, create_engine, Session
 from sqlalchemy import event
 
-sqlite_url= "sqlite:///petfinder.db"
+from app.core.config import settings
 
 engine = create_engine(
-	sqlite_url,
+	settings.database_url,
 	connect_args={"check_same_thread": False}, #Para utilizar várias threads, já que o sqlite só deixa a conecxão na thread que a criou
 
 )

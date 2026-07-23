@@ -1,4 +1,11 @@
 {
+  "name": "petfinder",
+  "version": "1.0.0",
+  "scripts": {
+    "start:backend": "bash -c 'source venv/bin/activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000'",
+    "start:frontend": "cd frontend && npx expo start",
+    "docker:up": "docker-compose up --build"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.2"
   }

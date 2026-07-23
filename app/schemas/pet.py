@@ -4,11 +4,13 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.models.pet import StatusPet
 from app.schemas.foto import FotoRead
+from app.models.bairro import Bairro
 
 
 # 1. Enum (não depende de nada)
 class CategoriaCadastro(str, Enum):
     perdido = "perdido"
+    encontrado = "encontrado"
     adocao = "adocao"
 
 
@@ -20,6 +22,8 @@ class DadosAdocaoCreate(BaseModel):
     vermifugado: bool = False
     castrado: bool = False
     garantia_castracao: bool = False
+    historia: str | None = Field(default=None, description="História do pet, se for para adoção")
+    personalidade: str | None = Field(default=None, description="Personalidade do pet, se for para adoção")
 
     @model_validator(mode="after")
     def castracao_coerente(self):
@@ -36,14 +40,21 @@ class PetCreate(BaseModel):
     porte: str
     pelagem: str
     categoria: CategoriaCadastro
+    bairro: Bairro | None = None
+    detalhes: str | None = None
     dados_adocao: DadosAdocaoCreate | None = None
 
     @model_validator(mode="after")
-    def adocao_so_para_adocao(self):
-        if self.categoria == CategoriaCadastro.perdido and self.dados_adocao is not None:
-            raise ValueError("Pets perdidos não recebem dados de adoção.")
+    def regras_por_categoria(self):
+        if self.categoria in [CategoriaCadastro.perdido, CategoriaCadastro.encontrado]:
+            if self.dados_adocao is not None:
+                raise ValueError("Pets perdidos ou encontrados não recebem dados de adoção.")
+            if self.categoria == CategoriaCadastro.perdido and self.bairro is None:
+                raise ValueError("Informe o bairro onde o pet foi perdido.")
         return self
-
+    
+    atende_por: str | None = None
+    docil: bool | None = None
 
 # 4. DadosAdocaoRead
 class DadosAdocaoRead(BaseModel):
@@ -54,7 +65,8 @@ class DadosAdocaoRead(BaseModel):
     vermifugado: bool
     castrado: bool
     garantia_castracao: bool
-
+    historia: str | None
+    personalidade: str | None
 
 # 5. PetRead antes do PetAdocaoRead
 class PetRead(BaseModel):
@@ -67,12 +79,17 @@ class PetRead(BaseModel):
     pelagem: str
     status: StatusPet
     dono_id: int | None
+    bairro: Bairro | None
+    atende_por: str | None
+    docil: bool | None
+    detalhes: str | None   
+
     fotos: list[FotoRead] = []
 
 
 # 6. PetAdocaoRead que herda de PetRead e usa DadosAdocaoRead
 class PetAdocaoRead(PetRead):
-    dados_adocao: DadosAdocaoRead | None		
+    dados_adocao: DadosAdocaoRead | None = None	
 
 class PetStatusUpdate(BaseModel):
     status: StatusPet

@@ -5,7 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.deps import usuario_logado
 from app.core.database import get_session
 from app.models.user import User
-from app.routers.pets import montar_pet_read
+from app.services.pet import montar_pet_read
+from app.services.ia import remover_embedding
 from app.schemas.user import UserRead, UserUpdate
 from app.schemas.pet import PetRead
 from app.models.pet import Pet, StatusPet
@@ -91,12 +92,13 @@ def meus_favoritos(
 
 
 @router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
-def excluir_conta(
+async def excluir_conta(
     usuario: User = Depends(usuario_logado),
     session: Session = Depends(get_session),
 ):
     # Apaga os pets (todos os posts serão removidos)
     for pet in usuario.pets:
+        await remover_embedding(pet.id)
         session.delete(pet)
 
     # Anonimiza os dados pessoais

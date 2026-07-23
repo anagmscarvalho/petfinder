@@ -14,10 +14,9 @@ class Anuncio(SQLModel, table=True):
     titulo: str | None = Field(default=None)
     texto: str | None = Field(default=None)
     imagem: str | None = Field(default=None)     # URL ou caminho do banner
-    link: str | None = Field(default=None)       # vídeo, página da campanha
+    link: str | None = Field(default=None)       # ex: vídeo, página da campanha
     tipo: TipoAnuncio = Field(default=TipoAnuncio.educativo)
     ativo: bool = Field(default=True)            # devs podem ocultar sem apagar
     criado_em: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-

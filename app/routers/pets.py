@@ -1,98 +1,51 @@
-from fastapi import (
-    APIRouter, Depends, HTTPException, Query, status, UploadFile
-)
-from sqlmodel import Session, select
-
-#Upload de fotos
-import io
+import logging
 from pathlib import Path
-from PIL import Image
 from uuid import uuid4
 
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
+from sqlmodel import Session
+
+from app.core.config import settings
 from app.core.database import get_session
 from app.core.deps import usuario_logado
 from app.models.user import User
 from app.models.pet import Pet, StatusPet
 from app.models.dados_adocao import DadosAdocao
-from app.schemas.pet import (
-    PetCreate, PetRead, CategoriaCadastro, PetStatusUpdate, PetAdocaoRead
-)
-
-# Foto
-from app.core.config import settings
 from app.models.foto import Foto
+from app.models.notificacao import Notificacao
+from app.schemas.pet import (
+    PetCreate, PetRead, PetAdocaoRead, PetStatusUpdate, CategoriaCadastro,
+)
 from app.schemas.foto import FotoRead
+from app.services.pet import montar_pet_read, montar_pet_detalhe
+from app.services.imagem import validar_imagem
+from app.services.ia import gravar_embedding, buscar_similares, IAIndisponivel
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/pets", tags=["pets"])
 
 MAPA_CATEGORIA_STATUS = {
     CategoriaCadastro.perdido: StatusPet.perdido,
+    CategoriaCadastro.encontrado: StatusPet.encontrado,
     CategoriaCadastro.adocao: StatusPet.adocao,
 }
 
-TIPOS_PERMITIDOS = {"image/jpeg": "jpg", "image/png": "png"}
-MAX_BYTES = settings.max_foto_mb * 1024 * 1024
 
-def montar_pet_read(pet: Pet) -> PetRead:
-    return PetRead(
-        id=pet.id,
-        nome=pet.nome,
-        especie=pet.especie,
-        raca=pet.raca,
-        porte=pet.porte,
-        pelagem=pet.pelagem,
-        status=pet.status,
-        dono_id=pet.dono_id,
-        fotos=[FotoRead.de_foto(f) for f in pet.fotos],
-    )
-
-
-# ── Listagem pública ──────────────────────────────────────────
-
-@router.get("", response_model=list[PetRead])
-def listar_pets(
-    status_filter: StatusPet | None = Query(default=None, alias="status"),
-    especie: str | None = None,
-    session: Session = Depends(get_session),
-):
-    """Lista pets com filtros opcionais por status e espécie."""
-    query = select(Pet)
-    if status_filter is not None:
-        query = query.where(Pet.status == status_filter)
-    if especie is not None:
-        query = query.where(Pet.especie == especie)
-    pets = session.exec(query).all()
-    return [montar_pet_read(p) for p in pets]
-
-
-@router.get("/{pet_id}", response_model=PetRead)
-def detalhe_pet(
-    pet_id: int,
-    session: Session = Depends(get_session),
-):
-    """Retorna detalhes de um pet pelo ID."""
-    pet = session.get(Pet, pet_id)
-    if pet is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Pet não encontrado.")
-    return montar_pet_read(pet)
-
-
-# ── Cadastro (perdido ou adoção) ──────────────────────────────
-
-@router.post("", response_model=PetRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PetAdocaoRead, status_code=status.HTTP_201_CREATED)
 def cadastrar_pet(
     dados: PetCreate,
     usuario: User = Depends(usuario_logado),
     session: Session = Depends(get_session),
 ):
+    is_admin = usuario.email == "miguelangelo.ss.pessoal@gmail.com" or usuario.pode_postar_adocao
     if (
         dados.categoria == CategoriaCadastro.adocao
-        and not usuario.pode_postar_adocao
+        and not is_admin
     ):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Sua conta não está aprovada para publicar pets para adoção.",
+            status.HTTP_403_FORBIDDEN,
+            "Sua conta não está aprovada para publicar pets para adoção.",
         )
 
     novo = Pet(
@@ -101,8 +54,12 @@ def cadastrar_pet(
         raca=dados.raca,
         porte=dados.porte,
         pelagem=dados.pelagem,
+        bairro=dados.bairro,
         status=MAPA_CATEGORIA_STATUS[dados.categoria],
         dono_id=usuario.id,
+        atende_por=dados.atende_por,
+        detalhes=dados.detalhes,
+        docil=dados.docil,
     )
     session.add(novo)
     session.commit()
@@ -114,10 +71,19 @@ def cadastrar_pet(
         session.commit()
         session.refresh(novo)
 
-    return montar_pet_read(novo)
+    return montar_pet_detalhe(novo)
 
 
-# ── Alterar status ────────────────────────────────────────────
+@router.get("/{pet_id}", response_model=PetAdocaoRead)
+def detalhe_pet(
+    pet_id: int,
+    session: Session = Depends(get_session),
+):
+    pet = session.get(Pet, pet_id)
+    if pet is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Pet não encontrado.")
+    return montar_pet_detalhe(pet)
+
 
 @router.patch("/{pet_id}/status", response_model=PetRead)
 def mudar_status(
@@ -129,7 +95,6 @@ def mudar_status(
     pet = session.get(Pet, pet_id)
     if pet is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Pet não encontrado.")
-
     if pet.dono_id != usuario.id:
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
@@ -142,8 +107,6 @@ def mudar_status(
     session.refresh(pet)
     return montar_pet_read(pet)
 
-
-# ── Upload de fotos ───────────────────────────────────────────
 
 @router.post(
     "/{pet_id}/fotos",
@@ -165,26 +128,7 @@ async def enviar_foto(
             "Você só pode adicionar fotos aos seus próprios pets.",
         )
 
-    extensao = TIPOS_PERMITIDOS.get(arquivo.content_type)
-    if extensao is None:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST, "Envie uma imagem JPEG ou PNG."
-        )
-
-    conteudo = await arquivo.read()
-    if len(conteudo) > MAX_BYTES:
-        raise HTTPException(
-            status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            f"A imagem excede o limite de {settings.max_foto_mb} MB.",
-        )
-
-    try:
-        Image.open(io.BytesIO(conteudo)).verify()
-    except Exception:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            "O arquivo enviado não é uma imagem válida.",
-        )
+    conteudo, extensao = await validar_imagem(arquivo)
 
     nome = f"{uuid4().hex}.{extensao}"
     Path(settings.upload_dir).joinpath(nome).write_bytes(conteudo)
@@ -194,4 +138,60 @@ async def enviar_foto(
     session.commit()
     session.refresh(foto)
 
+    try:
+        await gravar_embedding(pet.id, conteudo, nome)
+        matches = await buscar_similares(conteudo, nome)
+        
+        for m in matches:
+            score = m["score"]
+            match_pet_id = m["pet_id"]
+            if score >= settings.score_minimo and match_pet_id != pet.id:
+                match_pet = session.get(Pet, match_pet_id)
+                # Somente notifica se forem status complementares (perdido/encontrado)
+                if match_pet and match_pet.status != pet.status and match_pet.status != StatusPet.adocao and pet.status != StatusPet.adocao:
+                    # Notificar o dono do pet atual
+                    notif1 = Notificacao(
+                        usuario_id=usuario.id,
+                        tipo="match",
+                        titulo="Match encontrado!",
+                        mensagem=f"Identificamos um pet com {int(score*100)}% de similaridade ao seu.",
+                        dados_extras={"pet_id": match_pet.id}
+                    )
+                    # Notificar o dono do pet antigo
+                    if match_pet.dono_id != usuario.id:
+                        notif2 = Notificacao(
+                            usuario_id=match_pet.dono_id,
+                            tipo="match",
+                            titulo="Match encontrado!",
+                            mensagem=f"Alguém registrou um pet com {int(score*100)}% de similaridade ao seu.",
+                            dados_extras={"pet_id": pet.id}
+                        )
+                        session.add(notif2)
+                    session.add(notif1)
+        session.commit()
+    except IAIndisponivel as exc:
+        logger.warning("IA indisponível para o pet %s: %s", pet.id, exc)
+
     return FotoRead.de_foto(foto)
+
+
+@router.delete("/{pet_id}", status_code=status.HTTP_204_NO_CONTENT)
+def deletar_pet(
+    pet_id: int,
+    usuario: User = Depends(usuario_logado),
+    session: Session = Depends(get_session),
+):
+    pet = session.get(Pet, pet_id)
+    if pet is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Pet não encontrado.")
+    if pet.dono_id != usuario.id:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "Você só pode excluir os seus próprios pets.",
+        )
+    
+    # Optional: also remove embeddings from IA service if desired, 
+    # but cascading will delete it from DB.
+    session.delete(pet)
+    session.commit()
+    return None

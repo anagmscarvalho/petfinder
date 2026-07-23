@@ -1,8 +1,10 @@
-from typing import Literal 
+from typing import Literal
+
 from pydantic import BaseModel
 
 from app.schemas.pet import PetRead
 from app.schemas.anuncio import AnuncioRead
+
 
 class ItemFeed(BaseModel):
     tipo: Literal["pet", "anuncio"]

@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-	model_config = SettingsConfigDict(env_file=".env")
+	model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 	jwt_secret: str
 	jwt_algorithm: str ="HS256"
@@ -9,5 +9,8 @@ class Settings(BaseSettings):
 	upload_dir: str = "uploads"
 	max_foto_mb: int = 5
 	database_url: str = "sqlite:///petfinder.db"
+	ia_service_url: str = "http://localhost:8001"
+	ia_timeout: float = 30.0
+	score_minimo: float = 0.6
 
 settings = Settings()

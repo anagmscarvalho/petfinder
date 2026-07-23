@@ -15,3 +15,6 @@ python-multipart
 
 #manipulação de imagens
 pillow
+httpx
+google-auth
+requests
