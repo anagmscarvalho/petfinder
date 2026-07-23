@@ -8,6 +8,7 @@ import { SearchTabIcon, PawIcon, PlusIcon, BellIcon, ProfileIcon } from '../comp
 // Auth Screens
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 
 // Tab Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -18,9 +19,17 @@ import ProfileScreen from '../screens/ProfileScreen';
 // Stack Screens (acessíveis via tabs)
 import ReportLostScreen from '../screens/ReportLostScreen';
 import ReportFoundScreen from '../screens/ReportFoundScreen';
+import AdminAdoptionScreen from '../screens/AdminAdoptionScreen';
 import ResultsScreen from '../screens/ResultsScreen';
 import PetDetailsScreen from '../screens/PetDetailsScreen';
 import ChatListScreen from '../screens/ChatListScreen';
+import UserContextsScreen from '../screens/UserContextsScreen';
+import ChatScreen from '../screens/ChatScreen';
+import SeeAllScreen from '../screens/SeeAllScreen';
+import MyPetsScreen from '../screens/MyPetsScreen';
+import MyFavoritesScreen from '../screens/MyFavoritesScreen';
+import AboutScreen from '../screens/AboutScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -115,6 +124,7 @@ export default function AppNavigator() {
         {/* Auth Stack */}
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
 
         {/* Main App (tabs) */}
         <Stack.Screen name="MainTabs" component={MainTabs} />
@@ -123,8 +133,16 @@ export default function AppNavigator() {
         <Stack.Screen name="PetDetails" component={PetDetailsScreen} />
         <Stack.Screen name="ReportLost" component={ReportLostScreen} />
         <Stack.Screen name="ReportFound" component={ReportFoundScreen} />
+        <Stack.Screen name="AdminAdoption" component={AdminAdoptionScreen} />
         <Stack.Screen name="Results" component={ResultsScreen} />
         <Stack.Screen name="ChatList" component={ChatListScreen} />
+        <Stack.Screen name="UserContexts" component={UserContextsScreen} />
+        <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="SeeAll" component={SeeAllScreen} />
+        <Stack.Screen name="MyPets" component={MyPetsScreen} />
+        <Stack.Screen name="MyFavorites" component={MyFavoritesScreen} />
+        <Stack.Screen name="About" component={AboutScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -4,15 +4,15 @@ import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 export default function InfoGrid({ pet }) {
   const rows = [
     [
-      { label: 'ESPÉCIE', value: pet.species },
-      { label: 'RAÇA', value: pet.breed },
+      { label: 'ESPÉCIE', value: pet.especie || pet.species },
+      { label: 'RAÇA', value: pet.raca || pet.breed },
     ],
     [
-      { label: 'PORTE', value: pet.size },
-      { label: 'COR', value: pet.color },
+      { label: 'PORTE', value: pet.porte || pet.size },
+      { label: 'COR', value: pet.pelagem || pet.cor || pet.color },
     ],
     [
-      { label: 'BAIRRO', value: pet.location, full: true },
+      { label: 'BAIRRO', value: pet.bairro || pet.location, full: true },
     ],
   ];
 

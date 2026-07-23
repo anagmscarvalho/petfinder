@@ -35,9 +35,9 @@ export const ProfileIcon = ({ size = 24, color = '#000', style }) => (
   </Svg>
 );
 
-export const HeartIcon = ({ size = 24, color = '#000', style }) => (
+export const HeartIcon = ({ size = 24, color = '#000', style, filled = false }) => (
   <Svg width={size} height={size} viewBox="334 370 16 14" style={style} fill="none">
-    <Path d="M342 382C341 381 336 378 336 375C336 373 337.5 371.5 339 371.5C340 371.5 341 372 342 373C343 372 344 371.5 345 371.5C346.5 371.5 348 373 348 375C348 378 343 381 342 382Z" stroke={color} strokeWidth="1.5" />
+    <Path d="M342 382C341 381 336 378 336 375C336 373 337.5 371.5 339 371.5C340 371.5 341 372 342 373C343 372 344 371.5 345 371.5C346.5 371.5 348 373 348 375C348 378 343 381 342 382Z" stroke={color} strokeWidth="1.5" fill={filled ? color : "none"} />
   </Svg>
 );
 
@@ -56,9 +56,8 @@ export const CameraIcon = ({ size = 24, color = '#000', style }) => (
 );
 
 export const ChatListIcon = ({ size = 24, color = '#000', style }) => (
-  <Svg width={size} height={size} viewBox="260 115 24 24" style={style} fill="none">
-    <Path d="M272 127C274.761 127 277 124.761 277 122C277 119.239 274.761 117 272 117C269.239 117 267 119.239 267 122C267 124.761 269.239 127 272 127Z" stroke={color} strokeWidth="1.5" />
-    <Path d="M265 134C265 130 268 127 272 127C276 127 279 130 279 134" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+  <Svg width={size} height={size} viewBox="0 0 24 24" style={style} fill="none">
+    <Path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );
 
@@ -97,3 +96,29 @@ export const EditIcon = ({ size = 24, color = '#000', style }) => (
   </Svg>
 );
 
+
+export const TrashIcon = ({ size = 24, color = '#000', style }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={style}>
+    <Path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
+export const CheckIcon = ({ size = 16, color = '#000', style }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" style={style} fill="none">
+    <Path d="M20 6L9 17l-5-5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
+export const DoubleCheckIcon = ({ size = 16, color = '#000', style }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" style={style} fill="none">
+    <Path d="M18 6L7 17l-5-5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M22 10l-3.5 3.5m-2.5 2.5l-1.5 1.5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
+export const SendIcon = ({ size = 24, color = '#000', style }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" style={style} fill="none">
+    <Path d="M22 2L11 13" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M22 2L15 22L11 13L2 9L22 2Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);

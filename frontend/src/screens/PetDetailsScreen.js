@@ -1,8 +1,11 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 import InfoGrid from '../components/InfoGrid';
 import { ArrowLeftIcon, HeartIcon, ChatListIcon } from '../components/Icons';
+import { useAuth } from '../services/auth';
+import { getFavorites, addFavorite, removeFavorite, startConversation, API_BASE_URL } from '../services/api';
 
 export default function PetDetailsScreen({ navigation, route }) {
   const { pet } = route.params;
@@ -21,26 +24,96 @@ export default function PetDetailsScreen({ navigation, route }) {
 
   const statusStyle = statusColors[pet.status] || statusColors.perdido;
 
-  const handleContact = () => Alert.alert('Contatar', `Ligando para o tutor de ${pet.name}...`);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [loadingChat, setLoadingChat] = useState(false);
+  const { user, token } = useAuth();
+  
+  const isMyPet = pet.dono_id === user?.id;
+
+  useEffect(() => {
+    async function checkFavorite() {
+      if (!token) return;
+      try {
+        const favs = await getFavorites(token);
+        if (favs.some(f => f.id === pet.id)) {
+          setIsFavorite(true);
+        }
+      } catch {
+        // ignore
+      }
+    }
+    checkFavorite();
+  }, [pet.id, token]);
+
+  const toggleFavorite = async () => {
+    if (!token) {
+      Alert.alert('Atenção', 'Faça login para favoritar.');
+      return;
+    }
+    const previous = isFavorite;
+    setIsFavorite(!previous);
+
+    // Se for um pet do mock (id como string), não chama a API
+    if (typeof pet.id === 'string') return;
+
+    try {
+      if (previous) {
+        await removeFavorite(token, pet.id);
+      } else {
+        await addFavorite(token, pet.id);
+      }
+    } catch (err) {
+      console.error('Erro ao favoritar:', err);
+      Alert.alert('Erro', err.message || 'Não foi possível favoritar o pet.');
+      setIsFavorite(previous); // rollback
+    }
+  };
+
+  const handleContact = async () => {
+    if (!token) {
+      Alert.alert('Atenção', 'Faça login para entrar em contato.');
+      return;
+    }
+    if (loadingChat) return;
+    setLoadingChat(true);
+
+    try {
+      const conversa = await startConversation(token, pet.id);
+      navigation.navigate('Chat', { 
+        conversaId: conversa.id, 
+        chatName: conversa.outro_usuario?.nome_completo || 'Chat' 
+      });
+    } catch (err) {
+      console.error('Erro ao iniciar chat:', err);
+      Alert.alert('Erro', 'Não foi possível iniciar a conversa.');
+    } finally {
+      setLoadingChat(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.imageContainer}>
-          <Image source={{ uri: pet.image }} style={styles.image} />
+          <Image 
+            source={{ uri: pet.fotos?.[0]?.url ? `${API_BASE_URL}${pet.fotos[0].url}` : pet.image }} 
+            style={styles.image} 
+          />
           <View style={styles.headerOverlay}>
             <TouchableOpacity style={styles.headerButton} onPress={() => navigation.goBack()}>
               <ArrowLeftIcon size={20} color={COLORS.textTitle} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.headerButton} onPress={() => setIsFavorite(!isFavorite)}>
-              <HeartIcon size={20} color={isFavorite ? COLORS.primary : COLORS.textTitle} />
-            </TouchableOpacity>
+            {pet.status === 'adocao' && (
+              <TouchableOpacity style={styles.headerButton} onPress={toggleFavorite}>
+                <HeartIcon size={20} color={isFavorite ? COLORS.primary : COLORS.textTitle} filled={isFavorite} />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
         {/* Name + Status */}
         <View style={styles.nameRow}>
-          <Text style={styles.petName}>{pet.name}</Text>
+          <Text style={styles.petName}>{pet.nome || pet.name}</Text>
           <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
             <Text style={[styles.statusText, { color: statusStyle.text }]}>
               {statusLabels[pet.status]}
@@ -48,7 +121,7 @@ export default function PetDetailsScreen({ navigation, route }) {
           </View>
         </View>
 
-        <Text style={styles.breedText}>{pet.breed} • {pet.sex}</Text>
+        <Text style={styles.breedText}>{pet.raca || pet.breed} • {pet.sexo || pet.sex}</Text>
 
         {/* Info Grid */}
         <View style={styles.infoSection}>
@@ -56,12 +129,12 @@ export default function PetDetailsScreen({ navigation, route }) {
         </View>
 
         {/* Additional Info */}
-        {(pet.description || pet.missingDate) && (
+        {(pet.descricao || pet.description || pet.detalhes || pet.missingDate) && (
           <View style={[styles.extraCard, SHADOWS.card]}>
-            {pet.description && (
+            {(pet.descricao || pet.description || pet.detalhes) && (
               <>
-                <Text style={styles.extraLabel}>CARACTERÍSTICA</Text>
-                <Text style={styles.extraValue}>{pet.description}</Text>
+                <Text style={styles.extraLabel}>CARACTERÍSTICAS ÚNICAS</Text>
+                <Text style={styles.extraValue}>{pet.detalhes || pet.descricao || pet.description}</Text>
               </>
             )}
             {pet.missingDate && (
@@ -80,12 +153,14 @@ export default function PetDetailsScreen({ navigation, route }) {
         )}
 
         {/* Bottom Action Bar */}
-        <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.chatButton} activeOpacity={0.85} onPress={handleContact}>
-            <ChatListIcon size={20} color={COLORS.textWhite} />
-            <Text style={styles.chatButtonText}>Entrar em contato</Text>
-          </TouchableOpacity>
-        </View>
+        {!isMyPet && (
+          <View style={styles.bottomBar}>
+            <TouchableOpacity style={styles.chatButton} activeOpacity={0.85} onPress={handleContact}>
+              <ChatListIcon size={20} color={COLORS.primary} />
+              <Text style={styles.chatText}>Entrar em contato</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={{ height: 30 }} />
       </ScrollView>

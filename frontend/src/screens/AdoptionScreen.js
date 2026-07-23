@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 import { MOCK_ADOPTION_PETS, FILTER_OPTIONS } from '../constants/mockData';
@@ -7,11 +7,33 @@ import SearchBar from '../components/SearchBar';
 import FilterTabs from '../components/FilterTabs';
 import PetCard from '../components/PetCard';
 import { HeartIcon } from '../components/Icons';
+import { listPets } from '../services/api';
 
 export default function AdoptionScreen({ navigation }) {
   const [searchText, setSearchText] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [pets, setPets] = useState(MOCK_ADOPTION_PETS);
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchAdoption = async () => {
+    try {
+      const data = await listPets({ status: 'adocao' });
+      if (data.length > 0) setPets(data);
+    } catch {
+      // Usa mock data como fallback
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchAdoption();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    fetchAdoption();
+  }, []);
 
   const handleFavorite = (id) => {
     setPets(prev =>
@@ -30,7 +52,11 @@ export default function AdoptionScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.scroll} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
+      >
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Adoção</Text>

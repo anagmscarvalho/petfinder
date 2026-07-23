@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import {
   View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert,
-  ActivityIndicator, Platform,
+  ActivityIndicator, Platform, Switch
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 import { SIZE_OPTIONS, SEX_OPTIONS, BAIRROS_OPTIONS } from '../constants/mockData';
-import { ArrowLeftIcon, CameraIcon, SearchIcon } from '../components/Icons';
+import { ArrowLeftIcon, CameraIcon, HeartIcon } from '../components/Icons';
 import { createPet, uploadPhoto } from '../services/api';
 import { useAuth } from '../services/auth';
 import * as ImagePicker from 'expo-image-picker';
@@ -30,7 +30,7 @@ function OptionSelector({ label, options, selected, onSelect }) {
   );
 }
 
-export default function ReportLostScreen({ navigation }) {
+export default function AdminAdoptionScreen({ navigation }) {
   const [name, setName] = useState('');
   const [breed, setBreed] = useState('');
   const [size, setSize] = useState('');
@@ -38,6 +38,12 @@ export default function ReportLostScreen({ navigation }) {
   const [sex, setSex] = useState('');
   const [bairro, setBairro] = useState('');
   const [description, setDescription] = useState('');
+  
+  // Adoption specifics
+  const [ageMonths, setAgeMonths] = useState('');
+  const [castrado, setCastrado] = useState(false);
+  const [vacinado, setVacinado] = useState(false);
+
   const [imageUri, setImageUri] = useState(null);
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
@@ -65,9 +71,15 @@ export default function ReportLostScreen({ navigation }) {
         raca: breed,
         porte: size.toLowerCase(),
         pelagem: color || 'não informada',
-        categoria: 'perdido',
+        categoria: 'adocao',
         bairro: bairro,
         detalhes: description || '',
+        dados_adocao: {
+          idade_meses: ageMonths ? parseInt(ageMonths, 10) : 0,
+          castrado: castrado,
+          vermifugado: vacinado, 
+          historia: description
+        }
       });
       let fotosArray = [];
       if (imageUri) {
@@ -77,12 +89,12 @@ export default function ReportLostScreen({ navigation }) {
         }
       }
       if (Platform.OS === 'web') {
-        window.alert('Pet cadastrado com sucesso!');
+        window.alert('Pet cadastrado para adoção com sucesso!');
       } else {
-        Alert.alert('Sucesso!', 'Pet cadastrado com sucesso.');
+        Alert.alert('Sucesso!', 'Pet cadastrado para adoção com sucesso.');
       }
-      navigation.replace('PetDetails', { 
-        pet: { ...pet, fotos: fotosArray } 
+      navigation.replace('PetDetails', {
+        pet: { ...pet, fotos: fotosArray }
       });
     } catch (err) {
       Alert.alert('Erro', err.message || 'Não foi possível cadastrar o pet.');
@@ -99,46 +111,65 @@ export default function ReportLostScreen({ navigation }) {
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <ArrowLeftIcon size={20} color={COLORS.textTitle} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Perdi meu Pet</Text>
+          <Text style={styles.headerTitle}>Cadastrar Adoção</Text>
           <View style={{ width: 36 }} />
+        </View>
+
+        <View style={styles.adminBanner}>
+          <Text style={styles.adminBannerText}>Acesso de Administrador</Text>
         </View>
 
         {/* Photo Upload */}
         <TouchableOpacity style={styles.photoUpload} activeOpacity={0.85} onPress={pickImage}>
           <CameraIcon size={40} color={COLORS.primary} />
           <Text style={styles.photoLabel}>
-            {imageUri ? 'Foto selecionada' : 'Toque para enviar foto'}
+            {imageUri ? 'Foto selecionada' : 'Adicionar foto bonita!'}
           </Text>
-          <Text style={styles.photoSub}>A foto ajuda a IA a encontrar seu pet</Text>
+          <Text style={styles.photoSub}>A foto é essencial para a adoção</Text>
         </TouchableOpacity>
 
         {/* Form */}
         <View style={styles.form}>
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Nome do pet</Text>
-            <TextInput style={styles.input} placeholder="Ex: Rex" placeholderTextColor={COLORS.textGray} value={name} onChangeText={setName} />
+            <TextInput style={styles.input} placeholder="Ex: Bob" placeholderTextColor={COLORS.textGray} value={name} onChangeText={setName} />
           </View>
 
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Raça</Text>
-            <TextInput style={styles.input} placeholder="Ex: Golden Retriever" placeholderTextColor={COLORS.textGray} value={breed} onChangeText={setBreed} />
+            <TextInput style={styles.input} placeholder="Ex: Vira-lata (SRD)" placeholderTextColor={COLORS.textGray} value={breed} onChangeText={setBreed} />
           </View>
 
           <OptionSelector label="Porte" options={SIZE_OPTIONS} selected={size} onSelect={setSize} />
           <OptionSelector label="Sexo" options={SEX_OPTIONS} selected={sex} onSelect={setSex} />
-
+          
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Cor predominante</Text>
-            <TextInput style={styles.input} placeholder="Ex: Dourado" placeholderTextColor={COLORS.textGray} value={color} onChangeText={setColor} />
+            <TextInput style={styles.input} placeholder="Ex: Preto e Branco" placeholderTextColor={COLORS.textGray} value={color} onChangeText={setColor} />
           </View>
 
-          <OptionSelector label="Onde desapareceu (Bairro)" options={BAIRROS_OPTIONS} selected={bairro} onSelect={setBairro} />
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Idade (em meses)</Text>
+            <TextInput style={styles.input} placeholder="Ex: 24 (para 2 anos)" placeholderTextColor={COLORS.textGray} value={ageMonths} onChangeText={setAgeMonths} keyboardType="numeric" />
+          </View>
+
+          <View style={styles.switchRow}>
+            <Text style={styles.label}>Já é castrado?</Text>
+            <Switch value={castrado} onValueChange={setCastrado} trackColor={{ true: COLORS.primary }} />
+          </View>
+
+          <View style={styles.switchRow}>
+            <Text style={styles.label}>Vacinado/Vermifugado?</Text>
+            <Switch value={vacinado} onValueChange={setVacinado} trackColor={{ true: COLORS.primary }} />
+          </View>
+
+          <OptionSelector label="Onde se encontra (Bairro)" options={BAIRROS_OPTIONS} selected={bairro} onSelect={setBairro} />
 
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Características únicas</Text>
+            <Text style={styles.label}>História / Observações</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="Ex: Mancha branca no olho, coleira azul..."
+              placeholder="Ex: Resgatado das ruas, super dócil e adora crianças..."
               placeholderTextColor={COLORS.textGray}
               value={description}
               onChangeText={setDescription}
@@ -153,8 +184,8 @@ export default function ReportLostScreen({ navigation }) {
               <ActivityIndicator color={COLORS.textWhite} size="small" />
             ) : (
               <>
-                <SearchIcon size={20} color={COLORS.textWhite} />
-                <Text style={styles.submitText}>Cadastrar Pet Perdido</Text>
+                <HeartIcon size={20} color={COLORS.textWhite} filled={true} />
+                <Text style={styles.submitText}>Publicar para Adoção</Text>
               </>
             )}
           </TouchableOpacity>
@@ -172,6 +203,17 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: SIZES.base, paddingVertical: SIZES.sm,
+  },
+  adminBanner: {
+    backgroundColor: '#FFECCC',
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  adminBannerText: {
+    color: '#D47500',
+    ...FONTS.bold,
+    fontSize: SIZES.fontMd
   },
   backButton: {
     width: 36, height: 36, borderRadius: 18,
@@ -192,6 +234,7 @@ const styles = StyleSheet.create({
   photoSub: { fontSize: SIZES.fontMd, color: COLORS.textGray, marginTop: 4 },
   form: { paddingHorizontal: SIZES.base, marginTop: SIZES.lg, gap: SIZES.base },
   fieldGroup: { gap: 6 },
+  switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 4 },
   label: { fontSize: SIZES.fontBase, color: COLORS.textTitle, ...FONTS.semiBold },
   input: {
     backgroundColor: COLORS.cardWhite, borderRadius: SIZES.radiusSm,
@@ -209,8 +252,8 @@ const styles = StyleSheet.create({
   optionText: { fontSize: SIZES.fontBase, color: COLORS.textTitle, ...FONTS.medium },
   optionTextActive: { color: COLORS.textWhite, ...FONTS.semiBold },
   submitButton: {
-    backgroundColor: COLORS.primary, height: 54, borderRadius: SIZES.radiusLg,
-    alignItems: 'center', justifyContent: 'center', marginTop: SIZES.sm,
+    flexDirection: 'row', backgroundColor: COLORS.primary, height: 54, borderRadius: SIZES.radiusLg,
+    alignItems: 'center', justifyContent: 'center', marginTop: SIZES.sm, gap: 8
   },
   submitText: { fontSize: SIZES.fontXxl, color: COLORS.textWhite, ...FONTS.semiBold },
 });

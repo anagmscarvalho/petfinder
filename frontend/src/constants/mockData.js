@@ -36,15 +36,15 @@ export const MOCK_LOST_PETS = [
   },
   {
     id: '3',
-    name: 'Mimi',
-    species: 'Gato',
-    breed: 'Siamês',
+    name: 'Nina',
+    species: 'Cachorro',
+    breed: 'Pinscher',
     sex: 'Fêmea',
     size: 'Pequeno',
-    color: 'Bege e Marrom',
+    color: 'Preta e Marrom',
     status: 'perdido',
     location: 'Nazaré, Belém - PA',
-    description: 'Gata tímida, olhos azuis. Foge quando assustada.',
+    description: 'Muito tímida, foge quando assustada.',
     missingDate: '01/06/2026',
     photo: null,
     owner: 'Carlos Ferreira',
@@ -85,14 +85,14 @@ export const MOCK_FOUND_PETS = [
   {
     id: '11',
     name: 'Desconhecido',
-    species: 'Gato',
-    breed: 'Rajado',
+    species: 'Cachorro',
+    breed: 'Poodle',
     sex: 'Macho',
     size: 'Pequeno',
-    color: 'Cinza e Preto',
+    color: 'Branco',
     status: 'encontrado',
     location: 'Cremação, Belém - PA',
-    description: 'Gato magro, parece perdido há alguns dias.',
+    description: 'Cão magro, parece perdido há alguns dias.',
     foundDate: '09/06/2026',
     photo: null,
     finder: 'Pedro Lima',
@@ -118,11 +118,11 @@ export const MOCK_ADOPTION_PETS = [
   {
     id: '21',
     name: 'Pipoca',
-    species: 'Gato',
-    breed: 'Gato Rajado',
+    species: 'Cachorro',
+    breed: 'Poodle',
     sex: 'Macho',
     size: 'Pequeno',
-    color: 'Rajado',
+    color: 'Branco',
     status: 'adocao',
     location: 'Nazaré, Belém',
     age: '1 ano',
@@ -148,8 +148,8 @@ export const MOCK_ADOPTION_PETS = [
   {
     id: '23',
     name: 'Mel',
-    species: 'Gato',
-    breed: 'Gata Persa',
+    species: 'Cachorro',
+    breed: 'Lhasa Apso',
     sex: 'Fêmea',
     size: 'Médio',
     color: 'Branco',
@@ -267,7 +267,7 @@ export const MOCK_NOTIFICATIONS = [
   {
     id: 'n1',
     type: 'match',
-    title: 'Match encontrado! 🎉',
+    title: 'Match encontrado!',
     message: 'Um pet com 87% de similaridade ao Rex foi identificado na região do Marco.',
     time: '10:30',
     read: false,
@@ -330,11 +330,16 @@ export const MOCK_USER = {
 
 export const FILTER_OPTIONS = [
   { id: 'all', label: 'Todos' },
-  { id: 'dogs', label: 'Cães 🐶' },
-  { id: 'cats', label: 'Gatos 🐱' },
+  { id: 'dogs', label: 'Cães' },
   { id: 'puppies', label: 'Filhotes' },
 ];
 
-export const SPECIES_OPTIONS = ['Cachorro', 'Gato', 'Outro'];
+export const SPECIES_OPTIONS = ['Cachorro'];
 export const SIZE_OPTIONS = ['Pequeno', 'Médio', 'Grande'];
 export const SEX_OPTIONS = ['Macho', 'Fêmea'];
+export const BAIRROS_OPTIONS = [
+  'Nazaré', 'Batista Campos', 'Cidade Velha', 'Campina', 'Reduto', 'Umarizal',
+  'São Brás', 'Marco', 'Pedreira', 'Sacramenta', 'Telégrafo', 'Guamá',
+  'Jurunas', 'Condor', 'Cremação', 'Fátima', 'Canudos', 'Souza',
+  'Marambaia', 'Terra Firme'
+];

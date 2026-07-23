@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import {
   View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert,
+  ActivityIndicator, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
-import { SPECIES_OPTIONS, SIZE_OPTIONS } from '../constants/mockData';
-import { ArrowLeftIcon, CameraIcon, SearchIcon } from '../components/Icons';
+import { SIZE_OPTIONS, BAIRROS_OPTIONS } from '../constants/mockData';
+import { ArrowLeftIcon, CameraIcon, SendIcon } from '../components/Icons';
+import { createPet, uploadPhoto } from '../services/api';
+import { useAuth } from '../services/auth';
+import * as ImagePicker from 'expo-image-picker';
 
 function OptionSelector({ label, options, selected, onSelect }) {
   return (
@@ -27,23 +31,62 @@ function OptionSelector({ label, options, selected, onSelect }) {
 }
 
 export default function ReportFoundScreen({ navigation }) {
-  const [species, setSpecies] = useState('');
   const [size, setSize] = useState('');
   const [color, setColor] = useState('');
-  const [location, setLocation] = useState('');
+  const [bairro, setBairro] = useState('');
   const [description, setDescription] = useState('');
+  const [imageUri, setImageUri] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { token } = useAuth();
 
-  const handleSubmit = () => {
-    Alert.alert(
-      'Enviado!',
-      'A foto está sendo comparada com pets cadastrados. Você receberá uma notificação quando encontrarmos resultados.',
-      [
-        {
-          text: 'Ver Resultados',
-          onPress: () => navigation.navigate('Results'),
-        },
-      ],
-    );
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!size || !bairro) {
+      Alert.alert('Atenção', 'Preencha os campos obrigatórios (porte, bairro).');
+      return;
+    }
+    setLoading(true);
+    try {
+      const pet = await createPet(token, {
+        nome: 'Desconhecido',
+        especie: 'cachorro',
+        raca: 'Desconhecida',
+        porte: size.toLowerCase(),
+        pelagem: color || 'não informada',
+        bairro: bairro,
+        categoria: 'encontrado', // Registra como encontrado (StatusPet.encontrado) - requer suporte no backend ou será 'adocao' ou 'perdido'. O backend só suporta 'perdido' e 'adocao' no enum CategoriaCadastro.
+      });
+      // Como o backend atualmente suporta apenas `perdido` e `adocao` em CategoriaCadastro,
+      // usaremos uma abordagem de mockup para a IA ou precisaremos corrigir o backend.
+      let fotosArray = [];
+      if (imageUri) {
+        const uploadedFoto = await uploadPhoto(token, pet.id, imageUri);
+        if (uploadedFoto && uploadedFoto.url) {
+          fotosArray = [{ url: uploadedFoto.url }];
+        }
+      }
+      if (Platform.OS === 'web') {
+        window.alert('Enviado! A foto está sendo processada.');
+      } else {
+        Alert.alert('Enviado!', 'A foto está sendo processada.');
+      }
+      navigation.replace('PetDetails', {
+        pet: { ...pet, fotos: fotosArray }
+      });
+    } catch (err) {
+      Alert.alert('Erro', err.message || 'Não foi possível cadastrar o pet.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,15 +102,16 @@ export default function ReportFoundScreen({ navigation }) {
         </View>
 
         {/* Photo Upload */}
-        <TouchableOpacity style={styles.photoUpload} activeOpacity={0.85}>
+        <TouchableOpacity style={styles.photoUpload} activeOpacity={0.85} onPress={pickImage}>
           <CameraIcon size={40} color={COLORS.success} />
-          <Text style={styles.photoLabel}>Toque para enviar foto</Text>
+          <Text style={styles.photoLabel}>
+            {imageUri ? 'Foto selecionada' : 'Toque para enviar foto'}
+          </Text>
           <Text style={styles.photoSub}>A IA vai comparar com pets perdidos</Text>
         </TouchableOpacity>
 
         {/* Form */}
         <View style={styles.form}>
-          <OptionSelector label="Espécie" options={SPECIES_OPTIONS} selected={species} onSelect={setSpecies} />
           <OptionSelector label="Porte" options={SIZE_OPTIONS} selected={size} onSelect={setSize} />
 
           <View style={styles.fieldGroup}>
@@ -81,16 +125,7 @@ export default function ReportFoundScreen({ navigation }) {
             />
           </View>
 
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Onde foi encontrado</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Ex: Batista Campos, Belém - PA"
-              placeholderTextColor={COLORS.textGray}
-              value={location}
-              onChangeText={setLocation}
-            />
-          </View>
+          <OptionSelector label="Onde foi encontrado (Bairro)" options={BAIRROS_OPTIONS} selected={bairro} onSelect={setBairro} />
 
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Observações</Text>
@@ -106,9 +141,15 @@ export default function ReportFoundScreen({ navigation }) {
             />
           </View>
 
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} activeOpacity={0.85}>
-            <SearchIcon size={20} color={COLORS.textWhite} />
-            <Text style={styles.submitText}>Enviar para Comparação</Text>
+          <TouchableOpacity style={[styles.submitButton, loading && { opacity: 0.7 }]} onPress={handleSubmit} activeOpacity={0.85} disabled={loading}>
+            {loading ? (
+              <ActivityIndicator color={COLORS.textWhite} size="small" />
+            ) : (
+              <>
+                <SendIcon size={20} color={COLORS.textWhite} />
+                <Text style={styles.submitText}>Enviar para Comparação</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
 

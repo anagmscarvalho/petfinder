@@ -1,20 +1,54 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, FlatList,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, FlatList, RefreshControl
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
-import { MOCK_LOST_PETS, MOCK_FOUND_PETS } from '../constants/mockData';
+import { BAIRROS_OPTIONS } from '../constants/mockData';
 import SearchBar from '../components/SearchBar';
 import PetCard from '../components/PetCard';
 import { BellIcon, SearchIcon, CameraIcon, PawIcon, ChatListIcon } from '../components/Icons';
+import { listPets } from '../services/api';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function HomeScreen({ navigation }) {
   const [searchText, setSearchText] = useState('');
+  const [selectedBairro, setSelectedBairro] = useState('');
+  const [lostPets, setLostPets] = useState([]);
+
+  const [foundPets, setFoundPets] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchPets = async () => {
+    try {
+      const lost = await listPets({ status: 'perdido', bairro: selectedBairro || undefined });
+      setLostPets(lost);
+      const found = await listPets({ status: 'encontrado', bairro: selectedBairro || undefined });
+      setFoundPets(found);
+    } catch (err) {
+      console.error('Erro ao buscar pets:', err);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchPets();
+    setRefreshing(false);
+  }, [selectedBairro]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPets();
+    }, [selectedBairro])
+  );
 
   return (
     <SafeAreaView style={styles.safe}>
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.scroll} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
+      >
         {/* Header */}
         <View style={styles.header}>
           <View>
@@ -22,9 +56,9 @@ export default function HomeScreen({ navigation }) {
           </View>
           <TouchableOpacity
             style={styles.notifButton}
-            onPress={() => navigation.navigate('Notifications')}
+            onPress={() => navigation.navigate('ChatList')}
           >
-            <BellIcon size={20} color={COLORS.textTitle} />
+            <ChatListIcon size={20} color={COLORS.textTitle} />
             <View style={styles.notifBadge} />
           </TouchableOpacity>
         </View>
@@ -35,6 +69,27 @@ export default function HomeScreen({ navigation }) {
           value={searchText}
           onChangeText={setSearchText}
         />
+        
+        {/* Filtro de Bairros */}
+        <View style={styles.bairroFilterContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.bairroFilterScroll}>
+            <TouchableOpacity 
+              style={[styles.bairroChip, selectedBairro === '' && styles.bairroChipActive]}
+              onPress={() => setSelectedBairro('')}
+            >
+              <Text style={[styles.bairroChipText, selectedBairro === '' && styles.bairroChipTextActive]}>Todos</Text>
+            </TouchableOpacity>
+            {BAIRROS_OPTIONS.map(bairro => (
+              <TouchableOpacity 
+                key={bairro}
+                style={[styles.bairroChip, selectedBairro === bairro && styles.bairroChipActive]}
+                onPress={() => setSelectedBairro(bairro)}
+              >
+                <Text style={[styles.bairroChipText, selectedBairro === bairro && styles.bairroChipTextActive]}>{bairro}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
         {/* Quick actions */}
         <View style={styles.quickActions}>
@@ -70,29 +125,18 @@ export default function HomeScreen({ navigation }) {
             </View>
             <Text style={styles.quickLabel}>Adotar</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickAction}
-            onPress={() => navigation.navigate('ChatList')}
-            activeOpacity={0.85}
-          >
-            <View style={[styles.quickIcon, { backgroundColor: 'rgba(69, 90, 100, 0.08)' }]}>
-              <ChatListIcon size={24} color={COLORS.textTitle} />
-            </View>
-            <Text style={styles.quickLabel}>Mensagens</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Pets Perdidos */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Pets perdidos na região</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('SeeAll', { status: 'perdido', title: 'Pets perdidos na região' })}>
             <Text style={styles.seeAll}>Ver todos →</Text>
           </TouchableOpacity>
         </View>
 
         <FlatList
-          data={MOCK_LOST_PETS}
+          data={lostPets}
           horizontal
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.id}
@@ -102,6 +146,7 @@ export default function HomeScreen({ navigation }) {
               <PetCard
                 pet={item}
                 variant="vertical"
+                style={{ width: '100%' }}
                 onPress={() => navigation.navigate('PetDetails', { pet: item })}
               />
             </View>
@@ -111,12 +156,12 @@ export default function HomeScreen({ navigation }) {
         {/* Encontrados Recentemente */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Encontrados recentemente</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('SeeAll', { status: 'encontrado', title: 'Encontrados recentemente' })}>
             <Text style={styles.seeAll}>Ver todos →</Text>
           </TouchableOpacity>
         </View>
 
-        {MOCK_FOUND_PETS.map((pet) => (
+        {foundPets.map((pet) => (
           <View key={pet.id} style={styles.listCardWrapper}>
             <PetCard
               pet={pet}
@@ -180,17 +225,20 @@ const styles = StyleSheet.create({
   quickActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
     paddingHorizontal: SIZES.base,
     marginTop: SIZES.lg,
     marginBottom: SIZES.sm,
   },
   quickAction: {
     alignItems: 'center',
-    width: '23%',
+    width: '30%',
   },
   quickIcon: {
     width: 56,
     height: 56,
+    aspectRatio: 1,
+    flexShrink: 0,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
@@ -230,5 +278,34 @@ const styles = StyleSheet.create({
   },
   listCardWrapper: {
     paddingHorizontal: SIZES.base,
+  },
+  bairroFilterContainer: {
+    marginTop: SIZES.md,
+  },
+  bairroFilterScroll: {
+    paddingHorizontal: SIZES.lg,
+    paddingRight: SIZES.xxl,
+    gap: SIZES.sm,
+  },
+  bairroChip: {
+    backgroundColor: COLORS.cardWhite,
+    paddingHorizontal: SIZES.md,
+    paddingVertical: 8,
+    borderRadius: SIZES.radiusLg,
+    borderWidth: 1,
+    borderColor: COLORS.divider,
+  },
+  bairroChipActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  bairroChipText: {
+    fontSize: SIZES.fontSm,
+    color: COLORS.textGray,
+    ...FONTS.medium,
+  },
+  bairroChipTextActive: {
+    color: COLORS.textWhite,
+    ...FONTS.semiBold,
   },
 });

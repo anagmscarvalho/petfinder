@@ -1,11 +1,21 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
-import { HeartIcon, PawIcon } from './Icons';
+import { HeartIcon, PawIcon, TrashIcon } from './Icons';
+import { API_BASE_URL } from '../services/api';
 
-export default function PetCard({ pet, variant = 'vertical', onPress, onFavorite }) {
+export default function PetCard({ pet: rawPet, variant = 'vertical', onPress, onFavorite, onDelete, style }) {
+  // Normaliza campos: backend retorna pt-BR, mock retorna inglês
+  const pet = {
+    ...rawPet,
+    name: rawPet.name || rawPet.nome || 'Sem nome',
+    breed: rawPet.breed || rawPet.raca || '',
+    location: rawPet.location || rawPet.bairro || '',
+    sex: rawPet.sex || rawPet.especie || '',
+  };
+
   const statusColors = {
-    perdido: { bg: 'rgba(238, 121, 28, 0.12)', text: COLORS.primary },
-    encontrado: { bg: 'rgba(33, 150, 243, 0.12)', text: '#2196F3' },
+    perdido: { bg: COLORS.primary, text: COLORS.textWhite },
+    encontrado: { bg: '#2196F3', text: COLORS.textWhite },
     adocao: { bg: COLORS.success, text: COLORS.textWhite },
   };
 
@@ -17,14 +27,22 @@ export default function PetCard({ pet, variant = 'vertical', onPress, onFavorite
 
   const statusStyle = statusColors[pet.status] || statusColors.perdido;
 
+  const photoUrl = pet.photo || (pet.fotos && pet.fotos.length > 0 ? `${API_BASE_URL}${pet.fotos[0].url}` : null);
+
   if (variant === 'horizontal') {
     return (
-      <TouchableOpacity style={[styles.hCard, SHADOWS.card]} onPress={onPress} activeOpacity={0.85}>
-        {/* Photo placeholder */}
+      <TouchableOpacity style={[styles.hCard, SHADOWS.card, style]} onPress={onPress} activeOpacity={0.85}>
+        {/* Photo placeholder or Image */}
         <View style={styles.hPhoto}>
-          <PawIcon size={24} color={COLORS.primary} style={{ opacity: 0.25 }} />
-          <View style={[styles.badge, { backgroundColor: statusStyle.bg, position: 'absolute', bottom: 6, right: 6 }]}>
-            <Text style={[styles.badgeText, { color: statusStyle.text }]}>{statusLabels[pet.status]}</Text>
+          {photoUrl ? (
+            <Image source={{ uri: photoUrl }} style={styles.hImage} resizeMode="cover" />
+          ) : (
+            <View style={{ flexShrink: 0 }}>
+              <PawIcon size={24} color={COLORS.primary} style={{ opacity: 0.25 }} />
+            </View>
+          )}
+          <View style={[styles.badge, { backgroundColor: statusStyle.bg, position: 'absolute', bottom: 6, right: 6, flexShrink: 0 }]}>
+            <Text style={[styles.badgeText, { color: statusStyle.text }]} numberOfLines={1}>{statusLabels[pet.status]}</Text>
           </View>
         </View>
 
@@ -59,12 +77,18 @@ export default function PetCard({ pet, variant = 'vertical', onPress, onFavorite
 
   // Vertical card (grid style)
   return (
-    <TouchableOpacity style={[styles.vCard, SHADOWS.card]} onPress={onPress} activeOpacity={0.85}>
-      {/* Photo placeholder */}
+    <TouchableOpacity style={[styles.vCard, SHADOWS.card, style]} onPress={onPress} activeOpacity={0.85}>
+      {/* Photo placeholder or Image */}
       <View style={styles.vPhoto}>
-        <PawIcon size={30} color={COLORS.primary} style={{ opacity: 0.25 }} />
+        {photoUrl ? (
+          <Image source={{ uri: photoUrl }} style={styles.vImage} resizeMode="cover" />
+        ) : (
+          <View style={{ flexShrink: 0 }}>
+            <PawIcon size={30} color={COLORS.primary} style={{ opacity: 0.25 }} />
+          </View>
+        )}
         <View style={[styles.badge, styles.vBadge, { backgroundColor: statusStyle.bg }]}>
-          <Text style={[styles.badgeText, { color: statusStyle.text }]}>{statusLabels[pet.status]}</Text>
+          <Text style={[styles.badgeText, { color: statusStyle.text }]} numberOfLines={1}>{statusLabels[pet.status]}</Text>
         </View>
       </View>
 
@@ -72,11 +96,18 @@ export default function PetCard({ pet, variant = 'vertical', onPress, onFavorite
       <View style={styles.vInfo}>
         <View style={styles.vNameRow}>
           <Text style={styles.petName} numberOfLines={1}>{pet.name}</Text>
-          {onFavorite && (
-            <TouchableOpacity onPress={() => onFavorite(pet.id)}>
-              <HeartIcon size={20} color={pet.favorited ? COLORS.primary : COLORS.textGray} />
-            </TouchableOpacity>
-          )}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {onDelete && (
+              <TouchableOpacity onPress={() => onDelete(pet.id)}>
+                <TrashIcon size={20} color={COLORS.error} />
+              </TouchableOpacity>
+            )}
+            {onFavorite && (
+              <TouchableOpacity onPress={() => onFavorite(pet.id)}>
+                <HeartIcon size={20} color={pet.favorited ? COLORS.primary : COLORS.textGray} filled={pet.favorited} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
         <Text style={styles.petBreed} numberOfLines={1}>{pet.breed} • {pet.sex}</Text>
         <Text style={styles.petLocation} numberOfLines={1}>📍 {pet.location}</Text>
@@ -107,17 +138,23 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   vPhoto: {
-    height: 120,
+    aspectRatio: 1, // Isso faz a foto ser quadrada
     backgroundColor: COLORS.primaryFaint,
     borderRadius: SIZES.radiusMd,
     margin: SIZES.sm,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden', // Importante para a imagem respeitar o border radius
+  },
+  vImage: {
+    width: '100%',
+    height: '100%',
   },
   vBadge: {
     position: 'absolute',
     top: 8,
     right: 8,
+    flexShrink: 0,
   },
   vInfo: {
     paddingHorizontal: SIZES.sm,
@@ -140,11 +177,17 @@ const styles = StyleSheet.create({
   },
   hPhoto: {
     width: 88,
-    height: 88,
+    aspectRatio: 1,
     backgroundColor: COLORS.primaryFaint,
     borderRadius: SIZES.radiusMd,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
+    overflow: 'hidden',
+  },
+  hImage: {
+    width: '100%',
+    height: '100%',
   },
   hInfo: {
     flex: 1,

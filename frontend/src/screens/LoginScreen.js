@@ -1,19 +1,88 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView,
+  KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { FontAwesome } from '@expo/vector-icons';
+
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 import { PawIcon } from '../components/Icons';
+import { useAuth } from '../services/auth';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const { signIn, signInWithGoogle, signInWithApple } = useAuth();
 
-  const handleLogin = () => {
-    // Navegação simulada — sem autenticação real
-    navigation.replace('MainTabs');
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: '749924169525-p80mrpgie5u21too81a3ki7dfujgblej.apps.googleusercontent.com', // TODO: Substituir
+    iosClientId: 'SEU_IOS_CLIENT_ID.apps.googleusercontent.com', // TODO: Substituir
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      if (id_token) {
+        setLoading(true);
+        signInWithGoogle(id_token)
+          .then(() => navigation.replace('MainTabs'))
+          .catch((err) => Alert.alert('Erro', err.message || 'Falha ao logar com o Google.'))
+          .finally(() => setLoading(false));
+      }
+    }
+  }, [response]);
+
+  const handleLogin = async () => {
+    setErrorMessage('');
+    if (!email || !password) {
+      setErrorMessage('Preencha email e senha.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await signIn(email, password);
+      navigation.replace('MainTabs');
+    } catch (err) {
+      setErrorMessage(err.message || 'Email ou senha incorretos.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    promptAsync();
+  };
+
+  const handleAppleLogin = async () => {
+    try {
+      setLoading(true);
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      const idToken = credential.identityToken;
+      if (!idToken) throw new Error("A Apple não retornou o token de identidade.");
+
+      await signInWithApple(idToken);
+      navigation.replace('MainTabs');
+    } catch (e) {
+      if (e.code !== 'ERR_REQUEST_CANCELED') {
+        Alert.alert('Erro', e.message || 'Falha ao logar com a Apple.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,7 +102,7 @@ export default function LoginScreen({ navigation }) {
             </View>
             <Text style={styles.appName}>Fazer Login</Text>
             <Text style={styles.subtitle}>
-              Insira seu e-mail para aplicativo de nestamento ativo
+              Insira seu e-mail para fazer login
             </Text>
           </View>
 
@@ -59,16 +128,34 @@ export default function LoginScreen({ navigation }) {
                 placeholderTextColor={COLORS.textGray}
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
+                secureTextEntry={!showPassword}
               />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <FontAwesome name={showPassword ? 'eye' : 'eye-slash'} size={20} color={COLORS.textGray} />
+              </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.forgotLink}>
+            <TouchableOpacity 
+              style={styles.forgotLink}
+              onPress={() => navigation.navigate('ForgotPassword')}
+              activeOpacity={0.85}
+            >
               <Text style={styles.forgotText}>Esqueceu a senha?</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin} activeOpacity={0.85}>
-              <Text style={styles.loginButtonText}>Fazer Login</Text>
+            {errorMessage ? (
+              <Text style={{ color: 'red', textAlign: 'center', marginVertical: 5 }}>{errorMessage}</Text>
+            ) : null}
+
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin} activeOpacity={0.85} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color={COLORS.textWhite} />
+              ) : (
+                <Text style={styles.loginButtonText}>Fazer Login</Text>
+              )}
             </TouchableOpacity>
 
             {/* Divider */}
@@ -79,13 +166,13 @@ export default function LoginScreen({ navigation }) {
             </View>
 
             {/* Social Login Buttons */}
-            <TouchableOpacity style={styles.socialButton} activeOpacity={0.85}>
-              <Text style={styles.socialIcon}>G</Text>
+            <TouchableOpacity style={styles.socialButton} activeOpacity={0.85} onPress={handleGoogleLogin}>
+              <FontAwesome name="google" size={20} color={COLORS.textDark} />
               <Text style={styles.socialText}>Continuar com Google</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.socialButton} activeOpacity={0.85}>
-              <Text style={styles.socialIcon}></Text>
+            <TouchableOpacity style={styles.socialButton} activeOpacity={0.85} onPress={handleAppleLogin}>
+              <FontAwesome name="apple" size={22} color={COLORS.textDark} />
               <Text style={styles.socialText}>Continuar com Apple</Text>
             </TouchableOpacity>
           </View>
@@ -141,13 +228,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.divider,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   input: {
+    flex: 1,
     height: 48,
     paddingHorizontal: SIZES.base,
     fontSize: SIZES.fontXl,
     color: COLORS.textDark,
     ...FONTS.regular,
+  },
+  eyeIcon: {
+    padding: SIZES.base,
   },
   forgotLink: {
     alignSelf: 'flex-end',
