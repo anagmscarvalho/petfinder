@@ -34,3 +34,6 @@ npm-debug.log*
 
 # Uploads
 uploads/
+
+# Test caches
+.pytest_cache/
